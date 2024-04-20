@@ -39,6 +39,13 @@ class UserMovie(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE,)
     movie = movie = models.ForeignKey(Movie, on_delete = models.CASCADE, to_field='imdbID')
 
+
+class Quiz(models.Model):
+    '''A quiz consists of a quiz title and a list of questions.'''
+    Id = models.AutoField(primary_key=True)
+    Title = models.CharField(max_length = 256)
+    permalink = models.CharField(max_length = 32)
+
 '''
 "type": "multiple",
 "difficulty": "medium",
@@ -65,14 +72,8 @@ class Question(models.Model):
     CorrectAnswer2 = models.CharField(max_length = 100)
     CorrectAnswer3 = models.CharField(max_length = 100)
     CorrectAnswer4 = models.CharField(max_length = 100)
-    CorrectAnswer5 = models.CharField(max_length = 100)
-
-
-class Quiz(models.Model):
-    '''A quiz consists of a quiz title and a list of questions.'''
-    Id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Question, on_delete = models.CASCADE, to_field='Id')
-    permalink = models.CharField(max_length = 32)
+    CorrectAnswer5 = models.CharField(max_length = 128)
+    quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, to_field='Id', related_name='questions')
 
 
 class UserQuiz(models.Model):

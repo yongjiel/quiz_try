@@ -31,7 +31,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class QuizSerializer(serializers.ModelSerializer):
-    Questions_set = MovieRatingSerializer(many=True, read_only=True)
+    Questions_set = QuestionSerializer(many=True, read_only=True)
     class Meta:
         model = Quiz
         fields = [field.name for field in model._meta.fields]

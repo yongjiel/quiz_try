@@ -1,3 +1,6 @@
 /venv
 /current/__pycache__
 /memo.txt
+api/__pycache__
+api/migrations/__pycache__
+

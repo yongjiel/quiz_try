@@ -6,14 +6,16 @@ from rest_framework import permissions
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.models import User, Group
-from .models import Movie, Rating, UserMovie
+from .models import Movie, Rating, UserMovie, Quiz, UserQuiz, Question
 from .serializers import (MovieSerializer, MovieRatingSerializer,
-                         UserSerializer, GroupSerializer, UserMoviesSerializer)
+                         UserSerializer, GroupSerializer, UserMoviesSerializer,
+                         UserQuizSerializer, QuizSerializer, QuestionSerializer)
 import copy
 from rest_framework import viewsets
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 from rest_framework.authtoken.models import Token
+import random, string
 
 
 def _get_user_by_token(request):
@@ -150,31 +152,30 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 
 class UserQuizApiView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = (JWTAuthentication,TokenAuthentication,SessionAuthentication)
+    # permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = (JWTAuthentication,TokenAuthentication,SessionAuthentication)
     serializer_class = QuizSerializer
 
     def get(self, request, *args, **kwargs):
         user = _get_user_by_token(request)
         print(user.id)
         uqs = UserQuiz.objects.filter(user=user).all()
-        print([uq.movie for uq in uqs])
-        quizs = [{"imdbID": uq.movie.imdbID, "Title": uq.movie.Title, 
-                    "Year": uq.movie.Year} for uq in uqs]
+        print([uq.quiz for uq in uqs])
+        quizs = [{"Id": uq.quiz.Id, "permalink": uq.quiz.permalink} for uq in uqs]
 
         return Response(quizs, status=status.HTTP_200_OK)
 
 
 class QuestionApiView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
+    # permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
     serializer_class = QuestionSerializer
 
     def get(self, request, id=None):
         if id:
             try:
                 q = Question.objects.get(Id=id)
-                serializer = QuestionSerializer(movie)
+                serializer = QuestionSerializer(q)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except Exception as e:
                 return Response(str(e), status=status.HTTP_404_NOT_FOUND)
@@ -183,47 +184,18 @@ class QuestionApiView(APIView):
         serializer = QuestionSerializer(qs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, *args, **kwargs):
-        data = request.data
-        print(data)
-        q = None
-        serializer = QuestionSerializer(data=data)
-        q = Question.objects.filter(imdbID=data['Id']).first()
-        if not q:
-            if serializer.is_valid():
-                q = serializer.save()
-            else:
-                print(serializer.errors)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = QuestionSerializer(q)
-        print(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    def delete(self, request, id, *args, **kwargs):
-        if not id:
-            return Response("id must be defined.", status=status.HTTP_400_BAD_REQUEST)
-        
-        q = Question.objects.filter(imdbID=id).first()
-        if not q:
-            return Response(None, status=204)
-        # user = _get_user_by_token(request)
-        
-        q.delete()
-        return Response(None, status=204)
-
 
 class QuizApiView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
+    # permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
     serializer_class = QuizSerializer
 
     def get(self, request, id=None):
         if id:
             try:
-                qz = Quiz.objects.get(imdbID=id)
+                qz = Quiz.objects.get(Id=id)
                 setattr(qz, 'Questions_set', qz.questions.all())
-                serializer = MovieSerializer(qz)
+                serializer = QuizSerializer(qz)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except Exception as e:
                 return Response(str(e), status=status.HTTP_404_NOT_FOUND)
@@ -231,37 +203,21 @@ class QuizApiView(APIView):
         qzs = Quiz.objects.all()
         for qz in qzs:
             setattr(qz, 'Questions_set', qz.questions.all())
-        serializer = QuizSerializer(qz, many=True)
+
+        serializer = QuizSerializer(qzs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         data = request.data
         print(data)
-        qz = None
-        serializer = QuizSerializer(data=data)
-        qz = Quiz.objects.filter(imdbID=data['imdbID']).first()
-        if not qz:
-            if serializer.is_valid():
-                qz = serializer.save()
-            else:
-                print(serializer.errors)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        qz, response_obj = _create_quiz_and_questions_records(data)
+        if response_obj:
+            return response_obj
 
-            if 'Questions' in data:
-                for q in data['Questions']:
-                    try:
-                        Question.objects.create(Source=r['Source'], Value=r['Value'], movie=m)
-                    except Exception as e:
-                        return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
-
-        user = _get_user_by_token(request)
-        uq = UserQuiz.objects.filter(user=user, quiz=qz).first()
-        if not uq:
-            try:
-                UserQuiz.objects.create(user=user, quiz=qz)
-            except Exception as e:
-                print(str(e))
-                return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+        # create user_quiz record
+        response_obj = _create_user_quiz(request, qz)
+        if response_obj:
+            return response_obj
 
         serializer = QuizSerializer(qz)
         print(serializer.data)
@@ -271,15 +227,81 @@ class QuizApiView(APIView):
         if not id:
             return Response("id must be defined.", status=status.HTTP_400_BAD_REQUEST)
         
-        qz = Quiz.objects.filter(imdbID=id).first()
+        qz = Quiz.objects.filter(Id=id).first()
         if not qz:
             return Response(None, status=204)
-        user = _get_user_by_token(request)
-        uq = UserQuiz.objects.filter(user=user, quiz=qz).first()
-        if uq:
-            uq.delete()
-        else:
-            print("No userlist {} in quiz {} exists".format(user.id, qz.Id))
-            #return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+
+        _delete_user_quiz_record(qz, request)
+        # delete questions first
+        _delete_quiz_questions(id)
+        # finally delete quiz record
         qz.delete()
-        return Response(None, status=204)
+        return Response({"message": f"Quiz {id} is deleted"}, status=204)
+
+
+def _delete_quiz_questions(id):
+    qzs = Quiz.objects.filter(Id=id).all()
+    for qz in qzs:
+        questions = qz.questions.all()
+        for question in questions:
+            q = Question.objects.filter(Id=question.Id).first()
+            q.delete()
+
+
+def _delete_user_quiz_record(qz, request):
+    user = _get_user_by_token(request)
+    uq = UserQuiz.objects.filter(user=user, quiz=qz).first()
+    if uq:
+        # delete user_quiz record
+        uq.delete()
+    else:
+        print("Warning: No user {} {} with quiz {} exists".format(user.id, user.username, qz.Id))
+        #return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+
+
+def _create_user_quiz(request, qz):
+    user = _get_user_by_token(request)
+    uq = UserQuiz.objects.filter(user=user, quiz=qz).first()
+    if not uq:
+        try:
+            UserQuiz.objects.create(user=user, quiz=qz)
+        except Exception as e:
+            print(str(e))
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+    return None
+
+
+def _create_questions_for_quiz(data, qz):
+    if 'Questions' in data:
+        for q in data['Questions']:
+            try:
+                Question.objects.create(Answer1=q['Answer1'], Answer2=q['Answer2'], 
+                                        Answer3=q['Answer3'], Answer4=q['Answer4'],
+                                        Answer5=q['Answer5'],
+                                        CorrectAnswer1=q['CorrectAnswer1'], CorrectAnswer2=q['CorrectAnswer2'], 
+                                        CorrectAnswer3=q['CorrectAnswer3'], CorrectAnswer4=q['CorrectAnswer4'],
+                                        CorrectAnswer5=q['CorrectAnswer5'],
+                                        Question=q['question'],
+                                        quiz=qz)
+            except Exception as e:
+                print(str(e))
+                return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+    return None
+
+
+def _create_quiz_and_questions_records(data):
+    qz = None
+    response_obj = None
+    data['permalink'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    serializer = QuizSerializer(data=data)
+    if serializer.is_valid():
+        qz = serializer.save()
+        response_obj = _create_questions_for_quiz(data, qz)
+        return qz, response_obj
+    else:
+        print(serializer.errors)
+        response_obj = Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return None, response_obj
+
+    
+
