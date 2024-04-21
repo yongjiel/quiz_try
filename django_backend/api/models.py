@@ -44,7 +44,8 @@ class Quiz(models.Model):
     '''A quiz consists of a quiz title and a list of questions.'''
     Id = models.AutoField(primary_key=True)
     Title = models.CharField(max_length = 256)
-    permalink = models.CharField(max_length = 32)
+    permalink = models.CharField(max_length = 64)
+    user = models.ForeignKey(User, on_delete = models.CASCADE, related_name='quiz') 
 
 '''
 "type": "multiple",
@@ -63,19 +64,15 @@ class Question(models.Model):
     # Difficulty = models.CharField(max_length = 180)
     # Category = models.CharField(max_length = 25)
     Question = models.CharField(max_length = 30)
-    Answer1 = models.CharField(max_length = 100)
-    Answer2 = models.CharField(max_length = 100)
-    Answer3 = models.CharField(max_length = 100)
-    Answer4 = models.CharField(max_length = 100)
-    Answer5 = models.CharField(max_length = 100)
-    CorrectAnswer1 = models.CharField(max_length = 100)
-    CorrectAnswer2 = models.CharField(max_length = 100)
-    CorrectAnswer3 = models.CharField(max_length = 100)
-    CorrectAnswer4 = models.CharField(max_length = 100)
-    CorrectAnswer5 = models.CharField(max_length = 128)
+    Answer1 = models.CharField(max_length = 256)
+    Answer2 = models.CharField(max_length = 256)
+    Answer3 = models.CharField(max_length = 256)
+    Answer4 = models.CharField(max_length = 256)
+    Answer5 = models.CharField(max_length = 256)
+    CorrectAnswer1 = models.CharField(max_length = 256)
+    CorrectAnswer2 = models.CharField(max_length = 256)
+    CorrectAnswer3 = models.CharField(max_length = 256)
+    CorrectAnswer4 = models.CharField(max_length = 256)
+    CorrectAnswer5 = models.CharField(max_length = 256)
     quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, to_field='Id', related_name='questions')
-
-
-class UserQuiz(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE, to_field='id')
-    quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, to_field='Id')
+    

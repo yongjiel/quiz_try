@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Movie, Rating, UserMovie, Question, Quiz, UserQuiz
+from .models import Movie, Rating, UserMovie, Question, Quiz
 from django.contrib.auth.models import User, Group
 
 
@@ -30,8 +30,15 @@ class QuestionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ['url', 'username', 'email', 'groups']
+
+
 class QuizSerializer(serializers.ModelSerializer):
     Questions_set = QuestionSerializer(many=True, read_only=True)
+    user = UserSerializer(many=False, read_only=True)
     class Meta:
         model = Quiz
         fields = [field.name for field in model._meta.fields]
@@ -39,16 +46,6 @@ class QuizSerializer(serializers.ModelSerializer):
         read_only_fields = ['Questions_set']
 
 
-class UserQuizSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserQuiz
-        fields = '__all__'
-
-
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['url', 'username', 'email', 'groups']
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):

@@ -6,10 +6,10 @@ from rest_framework import permissions
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.models import User, Group
-from .models import Movie, Rating, UserMovie, Quiz, UserQuiz, Question
+from .models import Movie, Rating, UserMovie, Quiz, Question
 from .serializers import (MovieSerializer, MovieRatingSerializer,
                          UserSerializer, GroupSerializer, UserMoviesSerializer,
-                         UserQuizSerializer, QuizSerializer, QuestionSerializer)
+                        QuizSerializer, QuestionSerializer)
 import copy
 from rest_framework import viewsets
 from django.contrib.auth.decorators import permission_required
@@ -151,21 +151,6 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class UserQuizApiView(APIView):
-    # permission_classes = [permissions.IsAuthenticated]
-    # authentication_classes = (JWTAuthentication,TokenAuthentication,SessionAuthentication)
-    serializer_class = QuizSerializer
-
-    def get(self, request, *args, **kwargs):
-        user = _get_user_by_token(request)
-        print(user.id)
-        uqs = UserQuiz.objects.filter(user=user).all()
-        print([uq.quiz for uq in uqs])
-        quizs = [{"Id": uq.quiz.Id, "permalink": uq.quiz.permalink} for uq in uqs]
-
-        return Response(quizs, status=status.HTTP_200_OK)
-
-
 class QuestionApiView(APIView):
     # permission_classes = [permissions.IsAuthenticated]
     # authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
@@ -191,47 +176,52 @@ class QuizApiView(APIView):
     serializer_class = QuizSerializer
 
     def get(self, request, id=None):
+        user = _get_user_by_token(request)
         if id:
             try:
-                qz = Quiz.objects.get(Id=id)
+                qz = Quiz.objects.get(Id=id, user=user)
                 setattr(qz, 'Questions_set', qz.questions.all())
-                serializer = QuizSerializer(qz)
+                serializer = QuizSerializer(qz, context={'request': request})
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except Exception as e:
                 return Response(str(e), status=status.HTTP_404_NOT_FOUND)
 
-        qzs = Quiz.objects.all()
+        print(" ///// {} {}".format(user.id, user.username))
+        if user.username == 'admin':
+            qzs = Quiz.objects.filter().all()
+        else:
+            qzs = Quiz.objects.filter(user=user).all()
+
         for qz in qzs:
             setattr(qz, 'Questions_set', qz.questions.all())
 
-        serializer = QuizSerializer(qzs, many=True)
+        serializer = QuizSerializer(qzs, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        data = request.data
-        print(data)
-        qz, response_obj = _create_quiz_and_questions_records(data)
+        data = request.data 
+        user = _get_user_by_token(request)
+        qz, response_obj = _create_quiz_and_questions_records(data, user)
         if response_obj:
             return response_obj
 
-        # create user_quiz record
-        response_obj = _create_user_quiz(request, qz)
-        if response_obj:
-            return response_obj
-
-        serializer = QuizSerializer(qz)
-        print(serializer.data)
+        serializer = QuizSerializer(qz, context={'request': request,})
+        #print(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     def delete(self, request, id, *args, **kwargs):
+        user = _get_user_by_token(request)
         if not id:
             return Response("id must be defined.", status=status.HTTP_400_BAD_REQUEST)
         
-        qz = Quiz.objects.filter(Id=id).first()
+        if user.username == 'admin':
+            qz = Quiz.objects.filter(Id=id).first()
+        else:
+            qz = Quiz.objects.filter(Id=id, user=user).first()
+
         if not qz:
             return Response(None, status=204)
 
-        _delete_user_quiz_record(qz, request)
         # delete questions first
         _delete_quiz_questions(id)
         # finally delete quiz record
@@ -246,29 +236,6 @@ def _delete_quiz_questions(id):
         for question in questions:
             q = Question.objects.filter(Id=question.Id).first()
             q.delete()
-
-
-def _delete_user_quiz_record(qz, request):
-    user = _get_user_by_token(request)
-    uq = UserQuiz.objects.filter(user=user, quiz=qz).first()
-    if uq:
-        # delete user_quiz record
-        uq.delete()
-    else:
-        print("Warning: No user {} {} with quiz {} exists".format(user.id, user.username, qz.Id))
-        #return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
-
-
-def _create_user_quiz(request, qz):
-    user = _get_user_by_token(request)
-    uq = UserQuiz.objects.filter(user=user, quiz=qz).first()
-    if not uq:
-        try:
-            UserQuiz.objects.create(user=user, quiz=qz)
-        except Exception as e:
-            print(str(e))
-            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
-    return None
 
 
 def _create_questions_for_quiz(data, qz):
@@ -289,13 +256,16 @@ def _create_questions_for_quiz(data, qz):
     return None
 
 
-def _create_quiz_and_questions_records(data):
+def _create_quiz_and_questions_records(data, user):
     qz = None
     response_obj = None
     data['permalink'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    data['user'] = user
     serializer = QuizSerializer(data=data)
+    data_cp = copy.deepcopy(data)
+    del data_cp['Questions']
     if serializer.is_valid():
-        qz = serializer.save()
+        qz = Quiz.objects.create(**data_cp)
         response_obj = _create_questions_for_quiz(data, qz)
         return qz, response_obj
     else:

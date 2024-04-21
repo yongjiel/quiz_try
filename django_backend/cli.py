@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 """Cli side for load from opentdb.com, Get from local db, delete from 
-   local db.
+   local db. used in venv environment.
 
 Usage:
     cli.py [options]
-    cli.py -X GET
-    cli.py -X GET -i 10
-    cli.py -X POST -t title
-    cli.py -X DELETE -i 10
+    cli.py -X GET  [-u username:password]
+    cli.py -X GET -i 10 [-u username:password]
+    cli.py -X POST [-t title] [-u username:password]
+    cli.py -X DELETE -i 10 [-u username:password]
 
 Options:
     -h, --help
     -X --action action  Cli action, GET|POST|DELETE [default: 'GET']
     -i --id id          quiz id.
     -t --title title    Title of quiz
-
+    -u --user-password userpass  user and password for django backend login, default: 'admin:admin'
 """
 from docopt import docopt
 
@@ -39,14 +39,22 @@ def get_back_data_from_remote_url():
         return r.json()['results']
     
 
-def get_token_from_django_server():
+def get_token_from_django_server(args):
     url = f'{LOCAL_DJANGO_SERVER}/api/token/?format=json'
+    if '--user-password' in args and args['--user-password']:
+        tmp = args['--user-password'].split(":")
+        user = tmp[0]; password = tmp[1]
+    else:
+        user = 'admin'; password = 'admin'
+
+    print('login {} {}'.format(user, password))
     try:
-        r = requests.post(url, {'username':'admin', 'password':'admin'})
+        r = requests.post(url, {'username': user, 'password': password})
     except Exception as e:
         print(str(e))
         sys.exit(-1)
     else:
+        _error_check(r)
         return r.json()['access']
 
 
@@ -88,7 +96,14 @@ def post_quiz(r_json, token, title=None):
         print(str(e))
         sys.exit(-1)
     else:
+        _error_check(r)
         return r.json()
+
+
+def _error_check(r):
+    if r.status_code in [400, 500]:
+        print(r.json())
+        sys.exit(-1)
 
 
 def get_all_quizs(token):
@@ -99,6 +114,7 @@ def get_all_quizs(token):
         print(str(e))
         sys.exit(-1)
     else:
+        _error_check(r)
         pprint.pprint( r.json() )
 
 
@@ -112,6 +128,7 @@ def get_quiz(id, token):
         print(str(e))
         sys.exit(-1)
     else:
+        _error_check(r)
         pprint.pprint( r.json() )
 
 
@@ -124,11 +141,12 @@ def delete_quiz(id, token):
         print(str(e))
         sys.exit(-1)
     else:
+        _error_check(r)
         return r
 
 
 def main(args):
-    token = get_token_from_django_server()
+    token = get_token_from_django_server(args)
     if args['--action'] == 'DELETE':
         resp = delete_quiz(int(args['--id']), token)
     elif args['--action'] == 'POST':
