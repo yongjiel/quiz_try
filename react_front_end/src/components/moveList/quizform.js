@@ -16,15 +16,16 @@ class QuizForm extends React.Component {
     this.getQuizPart = this.getQuizPart.bind(this);
   }
   
-  getUserAndMovies(values){
+  creatDBRecords(values){
     this.props.dispatch(
           fetchUser(values, this.props.user_movies, this.props.navigate, "/search")
       );
   }
 
   handleQuizSubmit(values){
-    this.getUserAndMovies(values);
-    this.props.navigate("/user_quiz_list")
+    console.log(values)
+    // this.creatDBRecords(values);
+    // this.props.navigate("/user_quiz_list")
   }
 
   handleInputChange(event) {
@@ -46,24 +47,45 @@ class QuizForm extends React.Component {
   getQuizContent(){
     let text = "";
       text = (<Formik
+                  initialValues={{}}
                   onSubmit={async (values) => {
-                  await new Promise((resolve) => setTimeout(resolve, 500));
-                  this.handleQuizSubmit(values);
-                  }}
+                          await new Promise((resolve) => setTimeout(resolve, 500));
+                          this.handleQuizSubmit(values);
+                          }}
               >
                   <Form>
                       <table key="quiz_table">
-                          <tbody key="quiz_tbody">
-                      <tr key="quiz_row"><th><label htmlFor="quiz_title">Quiz title:</label></th>
-                          <td><Field name="quiz_title" label='quiz_title' type="text" /></td></tr>
-                          {Array.from({ length: 10 }).map((e, i) => (
-                            <tr key={"Question"+(i+1)}><th><label htmlFor={"Question"+(i+1)}>{"Question"+(i+1)}:</label></th>
-                            <td><Field name={"Question"+(i+1)} label={"Question"+(i+1)} /></td></tr>
-                        
-                            ))
+                      <tbody key="quiz_tbody">
+                      <tr key="quiz">
+                          <tr key="quiz_t">
+                          <th><label htmlFor="quiz_title">Quiz title:</label></th>
+                          <td><Field name="quiz_title" label='quiz_title' type="text" style={{width: '500px'}}/></td></tr>
+                          <td></td>
+                          </tr>
+                          {Array.from({ length: 10 }).map(function(e, i) {
+                            return (
+                              <tr>
+                                <tr key={"Question"+(i+1)}>
+                                  <td><label htmlFor={"Question"+(i+1)}>{"Question"+(i+1)}:</label></td>
+                                  <td><Field name={"Question"+(i+1)} label={"Question"+(i+1)} type="text" style={{width: '500px'}}/></td>
+                                </tr>
+                                {Array.from({ length: 5 }).map(function(t, j) {
+                                  return (
+                                    <tr>
+                                    <td><label htmlFor={"Answer"+(i+1)+'_'+(j+1)}>{"Answer"+(j+1)}:</label></td>
+                                    <td><Field name={"Answer"+(i+1)+'_'+(j+1)} label={"Answer"+(i+1)+'_'+(j+1)} type="text"  style={{width: '300px'}} /></td>
+                                    <td><Field name={"Check"+(i+1)+'_'+(j+1)} className="mr-2 leading-tight" type="checkbox" /></td>
+                                    <td><label htmlFor={"Check"+(i+1)+'_'+(j+1)}>Correct</label></td>
+                                    </tr>
+                                  );
+                                })}
+                              </tr>
+                            );
+                            }
+                          )
                           }
               
-                          </tbody>
+                      </tbody>
                       </table>
                   <button className="text-base our-red our-background leading-normal" type="submit">Submit</button>
                   </Form>
@@ -99,8 +121,6 @@ class QuizForm extends React.Component {
   }
 
   get_user(){
-    console.log("//////")
-    console.log(this.props)
     return this.props.user;
   }
 
