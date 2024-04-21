@@ -166,8 +166,8 @@ if REMOTE_HOST_CONFIG:
                             CORS_ALLOWED_ORIGINS
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=25),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=30),
 }
 
 # this will cause table authtoken_token will save no token.

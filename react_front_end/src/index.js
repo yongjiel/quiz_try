@@ -1,6 +1,8 @@
 import React from "react";
 import MovieList from "./components/moveList/movielist";
 import LogIn from "./components/moveList/login";
+import QuizForm from "./components/moveList/quizform";
+import UserQuizList from "./components/moveList/userquizlist";
 //import LogOut from "./components/moveList/logout";
 import UserMovieList from "./components/moveList/usermovielist";
 import { BrowserRouter, Route, Routes, Navigate} from 'react-router-dom';
@@ -38,6 +40,8 @@ function AppRoutes() {
       <Routes>        
         <Route index path='/' element={ <Navigate to='/login' /> } />
         <Route index path='/login' element={ <LogIn navigate={navigate}/>} />
+        <Route index path='/user_quiz_form' element={ <QuizForm  navigate={navigate}/>} />
+        <Route index path='/user_quiz_list' element={ <UserQuizList  navigate={navigate}/>} />
         <Route index path='/search' element={ <MovieList  navigate={navigate}/>} />
         <Route index path='/userlist' element={ <UserMovieList navigate={navigate}/> } />
         <Route path="/*"  element={ <NoPage url={window.location.href} status={404} />} />

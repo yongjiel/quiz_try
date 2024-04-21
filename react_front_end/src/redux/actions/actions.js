@@ -3,8 +3,11 @@ import {
   postDjangoMovie,
   fetchOMDBMovieByID,
   deleteMovieInDjango,
+  deleteQuizInDjango,
   fetchTokenInDjango,
   fetchUserMovieListInDjango,
+  fetchUserQuizListInDjango,
+  fetchQuizByIDInDjango,
   cookies
 } from "../api/todo-api";
 
@@ -89,14 +92,27 @@ export const FETCH_USER_MOVIE_SUCCESS = 'FETCH_USER_MOVIE_SUCCESS';
 export const LOG_OUT = 'LOG_OUT';
 export const ADD_MOVIE = 'ADD_MOVIE';
 export const SHOW_USER_MOVIES = "SHOW_USER_MOVIES";
+export const SHOW_QUIZ_FORM = "SHOW_QUIZ_FORM";
+export const SHOW_QUIZ_LIST = "SHOW_QUIZ_LIST";
 export const DELETE_MOVIE = "DELETE_MOVIE";
+
 export const ADD_MOVIE_SUCCESS = 'ADD_MOVIE_SUCCESS';
 export const ADD_MOVIE_FAILURE = 'ADD_MOVIE_FAILURE';
 export const DELETE_MOIVIE_FAILURE = 'DELETE_MOIVIE_FAILURE';
 export const DELETE_MOIVIE_SUCCESS = 'DELETE_MOIVIE_SUCCESS';
+export const DELETE_QUIZ_SUCCESS = 'DELETE_QUIZ_SUCCESS';
+export const DELETE_QUIZ_FAILURE = 'DELETE_QUIZ_FAILURE';
+export const FETCH_QUIZ_FAILURE = 'FETCH_QUIZ_FAILURE';
+export const FETCH_QUIZ_SUCCESS = 'FETCH_QUIZ_SUCCESS';
+export const DELETE_QUIZ = "DELETE_QUIZ";
+export const ADD_QUIZ = 'ADD_QUIZ';
+export const ADD_QUIZ_FULL = 'ADD_QUIZ_FULL';
+export const DELETE_QUIZ_FULL = 'DELETE_QUIZ_FULL';
 export const ADD_MOVIE_ENTIRE_RECORD = 'ADD_MOVIE_ENTIRE_RECORD';
 export const CLOSE_MODAL = "CLOSE_MODAL";
 export const OPEN_MODAL = "OPEN_MODAL";
+export const OPEN_QUIZ_MODAL = 'OPEN_QUIZ_MODAL';
+export const CLOSE_QUIZ_MODAL = 'CLOSE_QUIZ_MODAL';
 export const CLEAR_SEARCH_MOVIES = "CLEAR_SEARCH_MOVIES";
 
 export const closeModal = () => ({
@@ -108,12 +124,31 @@ export const openModal = (imdbID)  => ({
   payload: {imdbID}
 });
 
-export const fetccUserBegin = () => ({
-  type: FETCH_USER_BEGIN
+export const openQuizModal = (Id)  => ({
+  type: OPEN_QUIZ_MODAL,
+  payload: {Id}
 });
 
-export const fetccUserSuccess = () => ({
+export const closeQuizModal = ()  => ({
+  type: CLOSE_QUIZ_MODAL
+});
+
+export const fetchUserBegin = (user) => ({
+  type: FETCH_USER_BEGIN,
+  payload: {user}
+});
+
+export const fetchUserSuccess = () => ({
   type: FETCH_USER_SUCCESS
+});
+
+export const fetchQuizSuccess = () => ({
+  type: FETCH_QUIZ_SUCCESS
+});
+
+export const fetchQuizFailure = (error) => ({
+  type: FETCH_QUIZ_FAILURE,
+  payload: { error }
 });
 
 export const fetchUserMovieSuccess = (movies) =>({
@@ -124,6 +159,16 @@ export const fetchUserMovieSuccess = (movies) =>({
 export const addMovieToUserMovies = (post) =>({
   type: ADD_MOVIE,
   payload: {post}
+});
+
+export const addQuizToQuizs = (quiz) =>({
+  type: ADD_QUIZ,
+  payload: {quiz}
+});
+
+export const addQuizToQuizWithQuestions=(quiz) =>({
+  type: ADD_QUIZ_FULL,
+  payload: {quiz}
 });
 
 export const addMovieSuccess = () =>({
@@ -138,11 +183,19 @@ export const showUserMovies = ()=> ({
   type: SHOW_USER_MOVIES
 });
 
+export const showQuizForm = ()=> ({
+  type: SHOW_QUIZ_FORM
+});
+
+export const showQuizList = ()=> ({
+  type: SHOW_QUIZ_LIST
+});
+
 export const clearSearchMovies = ()=>({
   type: CLEAR_SEARCH_MOVIES
 });
 
-export const fetccUserFailure = error => ({
+export const fetchUserFailure = error => ({
   type: FETCH_USER_FAILURE,
   payload: { error }
 });
@@ -156,12 +209,30 @@ export const deleteMovie = (i) => ({
   payload: {i}
 });
 
+export const deleteQuiz = (i) => ({
+  type: DELETE_QUIZ,
+  payload: {i}
+});
+
+export const deleteQuizFull = (i) => ({
+  type: DELETE_QUIZ_FULL,
+  payload: {i}
+});
+
 export const deleteMovieSuccess =()=>({
   type: DELETE_MOIVIE_SUCCESS
 });
 
+export const deleteQuizSuccess =()=>({
+  type: DELETE_QUIZ_SUCCESS
+});
+
 export const deleteMovieFailure =()=>({
   type: DELETE_MOIVIE_FAILURE
+});
+
+export const deleteQuizFailure =()=>({
+  type: DELETE_QUIZ_FAILURE
 });
 
 export const addMovieEntireRecord =(data)=>({
@@ -177,6 +248,16 @@ export function closemodal(){
 export function openmodal(imdbID){
   return dispatch => {
     dispatch(openModal(imdbID))};
+}
+
+export function closequizmodal(){
+  return dispatch => {
+    dispatch(closeQuizModal())};
+}
+
+export function openquizmodal(Id){
+  return dispatch => {
+    dispatch(openQuizModal(Id))};
 }
 
 export function logout(){
@@ -237,9 +318,52 @@ export function deletmovie(i, imdbID, navigate){
   };
 }
 
+export function addquiz(quiz){
+  return dispatch => {
+    dispatch(addQuizToQuizs(quiz));
+  };
+}
+
+export function deletequiz(i, i_in_full, id, navigate){
+  return dispatch => {
+    const resp = deleteQuizInDjango(id);
+    resp.then(res=>{
+      if ( [204].includes(res.status) ) {
+        dispatch(deleteQuiz(i));
+        if (i_in_full >= 0){
+          dispatch(deleteQuizFull(i_in_full));
+        }
+        dispatch(deleteQuizSuccess());
+      } else {
+          if ( [401].includes(res.status) ){
+            alert("Token timeout! Back to login");
+            dispatch(logOut());
+            navigate('/login');
+          }else{
+            dispatch(deleteQuizFailure());
+          }
+          
+      }
+    });
+    
+  };
+}
+
 export function showUsermovies(){
   return dispatch => {
     dispatch(showUserMovies());
+  }
+}
+
+export function showQuizform(){
+  return dispatch => {
+    dispatch(showQuizForm());
+  }
+}
+
+export function showQuizlist(){
+  return dispatch => {
+    dispatch(showQuizList());
   }
 }
 
@@ -247,10 +371,14 @@ function is_not_in_user_movies(mvs, id){
   return mvs.filter(m => m.imdbID === id).length === 0;
 }
 
+function is_not_in_quizs(qzs, id){
+  return qzs.filter(q => q.Id === id).length === 0;
+}
+
 export function fetchMovieListInDjango(token, mvs, navigate, uri) {
   return dispatch => {
     if (token === null){
-      dispatch(fetccUserFailure("Could not get user's movies"));
+      dispatch(fetchUserFailure("Could not get user's movies"));
       return;
     }
     fetchUserMovieListInDjango(token)
@@ -261,7 +389,7 @@ export function fetchMovieListInDjango(token, mvs, navigate, uri) {
         }
       });
       cookies.set('token', token);
-      dispatch(fetccUserSuccess());
+      dispatch(fetchUserSuccess());
       if (navigate !== null){
         navigate(uri);
       }
@@ -269,7 +397,35 @@ export function fetchMovieListInDjango(token, mvs, navigate, uri) {
     }).catch(
       error => {
         console.log(error);
-        dispatch(fetccUserFailure("Could not get user's movies"));
+        dispatch(fetchUserFailure("Could not get user's movies"));
+      }
+    );
+  };
+}
+
+export function fetchUserQuizsInDjango(token, qzs, navigate, uri) {
+  return dispatch => {
+    if (token === null){
+      dispatch(fetchUserFailure("Could not pass user anthentication"));
+      return;
+    }
+    fetchUserQuizListInDjango(token)
+    .then(quizs=> {
+      quizs.map(q => {
+        if ( is_not_in_quizs(qzs, q.Id) ){
+          dispatch(addquiz(q));
+        }
+      });
+      cookies.set('token', token);
+      dispatch(fetchQuizSuccess());
+      if (navigate !== null){
+        navigate(uri);
+      }
+      return quizs;
+    }).catch(
+      error => {
+        console.log(error);
+        dispatch(fetchQuizFailure("Could not get user's quiz"));
       }
     );
   };
@@ -277,7 +433,9 @@ export function fetchMovieListInDjango(token, mvs, navigate, uri) {
 
 export function fetchUser(value, mvs, navigate, uri) {
   return dispatch => {
-    dispatch(fetccUserBegin(value));
+    cookies.set('user', value.username);
+    var username = value.username || cookies.get('user');
+    dispatch(fetchUserBegin(username));
     
     fetchTokenInDjango(value)
         .then(data => {
@@ -289,9 +447,33 @@ export function fetchUser(value, mvs, navigate, uri) {
       .catch(
         error => {
           console.log(error);
-          dispatch(fetccUserFailure(error));
+          dispatch(fetchUserFailure(error));
         }
       );
   };
 
+}
+
+export function fetchQuizByID(Id){
+  return dispatch => {
+    fetchQuizByIDInDjango(Id)
+        .then(data => {
+          console.log("999999")
+          console.log(data);
+          dispatch(addquiztoquizwithquestions(data)); // for jwt token
+          return data;
+          })
+      .catch(
+        error => {
+          console.log(error);
+          dispatch(fetchUserFailure(error));
+        }
+      );
+  };
+}
+
+export function addquiztoquizwithquestions(data){
+  return dispatch =>{
+    dispatch(addQuizToQuizWithQuestions(data));
+  };
 }

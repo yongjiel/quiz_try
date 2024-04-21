@@ -5,10 +5,12 @@ import {
     from "../../redux/actions/actions";
 import Modal from "react-modal";
 import LogOut from "./logout";
-import QuizForm from "./quizform";
+import ToQuizForm from "./toquizform";
+import ToUserQuizList from "./touserquizlist";
 import ToSearchList from "./tosearch";
-import { fetchMovieListInDjango, fetccUserFailure } from "../../redux/actions/actions";
+import { fetchMovieListInDjango, fetchUserFailure } from "../../redux/actions/actions";
 import { cookies } from "../../redux/api/todo-api";
+
 
 class UserMovieList extends React.Component {
     constructor(props) {
@@ -48,7 +50,7 @@ class UserMovieList extends React.Component {
     }
     
     showQuizFormButton(){
-      return <QuizForm navigate={this.props.navigate}/>;            
+      return <ToQuizForm navigate={this.props.navigate}/>;            
     }
 
     openModal(imdbID){
@@ -59,12 +61,14 @@ class UserMovieList extends React.Component {
       let text = "";
         text = (<div>
                 {this.showLogoutButton()}&nbsp;&nbsp;&nbsp;{this.showQuizFormButton()}&nbsp;&nbsp;&nbsp;
+                <ToUserQuizList navigate={this.props.navigate}/> &nbsp;&nbsp;&nbsp;
                 <ToSearchList navigate={this.props.navigate}/>
                 <br/><br/>
                 <h1>Hi, User, your Movie List. </h1>
                 <table key='table'>
                 <tbody key='tbody'>
-                <tr key='head_row'><th style={{textAlign: 'left'}}>Title</th><th style={{textAlign: 'left'}}>Year</th><th>Delete?</th></tr>
+                <tr key='head_row'><th style={{textAlign: 'left'}}>Title</th>
+                <th style={{textAlign: 'left'}}>Year</th><th>Delete?</th></tr>
                   {this.props.user_movies.map((post, i) => (
                     <tr key={'row'+i}>
                     <td key={post.imdbID} style={{width: '600px'}}>
@@ -159,7 +163,7 @@ class UserMovieList extends React.Component {
     
     refetchUserMovieList(token){
         if (token === null){
-            this.props.dispatch(fetccUserFailure("Could not get user's movies"));
+            this.props.dispatch(fetchUserFailure("Could not get user's movies"));
           }
         this.props.dispatch(fetchMovieListInDjango(token, this.props.user_movies, null,null));
       }

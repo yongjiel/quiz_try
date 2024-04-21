@@ -8,9 +8,10 @@ import {
     clearSearchMovies
 } from "../../redux/actions/actions";
 import LogOut from "./logout";
-import QuizForm from "./quizform";
+import ToQizeForm from "./toquizform";
+import ToUserQuizList from "./touserquizlist";
 import ToUserMovieList from "./touserlist";
-import { fetchMovieListInDjango, fetccUserFailure } from "../../redux/actions/actions";
+import { fetchMovieListInDjango, fetchUserFailure } from "../../redux/actions/actions";
 import { cookies } from "../../redux/api/todo-api";
 
 class MovieList extends React.Component {
@@ -54,7 +55,7 @@ class MovieList extends React.Component {
     }
 
     showQuizFormButton(){
-      return <QuizForm navigate={this.props.navigate}/>;            
+      return <ToQizeForm navigate={this.props.navigate}/>;            
     }
 
     showLogoutButton(){
@@ -110,8 +111,11 @@ class MovieList extends React.Component {
     getSearchPart(){
       return (
         <div>
-          {this.showLogoutButton()}&nbsp;&nbsp;&nbsp;{this.showQuizFormButton()}&nbsp;&nbsp;&nbsp;
+          {this.showLogoutButton()}&nbsp;&nbsp;&nbsp;
+          {this.showQuizFormButton()}&nbsp;&nbsp;&nbsp;
+          <ToUserQuizList navigate={this.props.navigate}/>&nbsp;&nbsp;&nbsp;
           <ToUserMovieList navigate={this.props.navigate}/>
+          
           {this.checkUserList()}
           <br/><br/>
           <h1>Search Movie List. </h1>
@@ -137,7 +141,7 @@ class MovieList extends React.Component {
                   </div>)}*/
     refetchUserMovieList(token){
       if (token === null){
-        this.props.dispatch(fetccUserFailure("Could not get user's movies"));
+        this.props.dispatch(fetchUserFailure("Could not get user's movies"));
       }
       this.props.dispatch(fetchMovieListInDjango(token, this.props.user_movies, null, null));
     }

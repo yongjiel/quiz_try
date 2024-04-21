@@ -83,6 +83,27 @@ export const deleteMovieInDjango = (imdbID) => {
   };
 };
 
+
+export const deleteQuizInDjango = (id) => {
+  const url = `${process.env.REACT_APP_PROXY_HOST}/api/quizs/`+ id;
+  try{
+    // not for saga generator. return promise.
+      const res = fetch(url
+              ,{
+                headers: {
+                  'Content-type': 'application/json',
+                  'Accept': 'application/json',
+                  'Authorization': 'Bearer ' + cookies.get("token"),
+                },
+                method: "DELETE"
+              });
+      return res;
+  }catch(error) {
+    console.log(error);
+  };
+};
+
+
 export function fetchTokenInDjango(value) {
   const url = `${process.env.REACT_APP_PROXY_HOST}/api/token/?format=json`;
   // not for saga generator. return promise.
@@ -119,6 +140,47 @@ export function fetchUserMovieListInDjango(token){
             }
           );
 }
+
+export function fetchQuizByIDInDjango(Id){
+  const url = `${process.env.REACT_APP_PROXY_HOST}/api/quizs/` + Id;
+  const config = {
+    headers: { 
+      //Authorization: `Token ${token}` // for normal token
+      Authorization: 'Bearer ' + cookies.get("token"),
+    }  
+  };
+  // not for saga generator. return promise.
+  return axios.get(url, config)
+          .then(res=>{
+            return res.data;
+          })
+          .catch(
+            error => {
+              console.log(error);
+            }
+          );
+}
+
+export function fetchUserQuizListInDjango(token){
+  const url = `${process.env.REACT_APP_PROXY_HOST}/api/quiz_summary/`;
+  const config = {
+    headers: { 
+      //Authorization: `Token ${token}` // for normal token
+      Authorization: `Bearer ${token}`
+    }  
+  };
+  // not for saga generator. return promise.
+  return axios.get(url, config)
+          .then(res=>{
+            return res.data;
+          })
+          .catch(
+            error => {
+              console.log(error);
+            }
+          );
+}
+
 export function fetchNewUser(){
 
 };

@@ -3,6 +3,18 @@ from .models import Movie, Rating, UserMovie, Question, Quiz
 from django.contrib.auth.models import User, Group
 
 
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ['url', 'username', 'email', 'groups']
+
+
+class GroupSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['url', 'name']
+
+
 class UserMoviesSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserMovie
@@ -30,10 +42,6 @@ class QuestionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['url', 'username', 'email', 'groups']
 
 
 class QuizSerializer(serializers.ModelSerializer):
@@ -46,9 +54,8 @@ class QuizSerializer(serializers.ModelSerializer):
         read_only_fields = ['Questions_set']
 
 
-
-
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
+class QuizSummarySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Group
-        fields = ['url', 'name']
+        model = Quiz
+        fields = '__all__'
+

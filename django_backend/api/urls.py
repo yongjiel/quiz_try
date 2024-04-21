@@ -6,6 +6,7 @@ from .views import (
     MovieRatingsApiView,
     UserMoviesApiView,
     QuizApiView,
+    QuizSummaryApiView,
     QuestionApiView
 )
 from rest_framework_simplejwt.views import (
@@ -32,5 +33,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     re_path(r"^quizs/?(?P<id>\w+)?", QuizApiView.as_view(), name="get_quizs",),
+    re_path(r"^quiz_summary/", QuizSummaryApiView.as_view(), name="get_quizs",),
     re_path(r"^questions/?(?P<id>\w+)?", QuizApiView.as_view(), name="get_questions",),
 ]

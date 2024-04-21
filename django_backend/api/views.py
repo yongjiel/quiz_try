@@ -9,7 +9,7 @@ from django.contrib.auth.models import User, Group
 from .models import Movie, Rating, UserMovie, Quiz, Question
 from .serializers import (MovieSerializer, MovieRatingSerializer,
                          UserSerializer, GroupSerializer, UserMoviesSerializer,
-                        QuizSerializer, QuestionSerializer)
+                        QuizSerializer, QuestionSerializer, QuizSummarySerializer)
 import copy
 from rest_framework import viewsets
 from django.contrib.auth.decorators import permission_required
@@ -227,6 +227,23 @@ class QuizApiView(APIView):
         # finally delete quiz record
         qz.delete()
         return Response({"message": f"Quiz {id} is deleted"}, status=204)
+
+
+class QuizSummaryApiView(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
+    serializer_class = QuizSummarySerializer
+
+    def get(self, request):
+        user = _get_user_by_token(request)
+        print(" ///// {} {}".format(user.id, user.username))
+        if user.username == 'admin':
+            qzs = Quiz.objects.filter().all()
+        else:
+            qzs = Quiz.objects.filter(user=user).all()
+
+        serializer = QuizSummarySerializer(qzs, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 def _delete_quiz_questions(id):
