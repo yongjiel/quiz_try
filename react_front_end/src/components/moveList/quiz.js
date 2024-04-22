@@ -1,10 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Formik, Field, Form } from "formik";
-import { postQuiz } from "../../redux/actions/actions";
+import { postQuiz, fetchQuizByID } from "../../redux/actions/actions";
 import HeaderBar from "./headerbar";
 import { useParams } from 'react-router-dom';
 import { cookies } from "../../redux/api/todo-api";
+
 
 const withRouter = WrappedComponent => props => {
     const match = useParams();
@@ -25,6 +26,7 @@ class Quiz extends React.Component {
     this.handleQuizSubmit = this.handleQuizSubmit.bind(this);
     this.getQuizPart = this.getQuizPart.bind(this);
     this.creatDBRecords = this.creatDBRecords.bind(this);
+    this.first_time = 1;
   }
   
   creatDBRecords(d){
@@ -33,39 +35,8 @@ class Quiz extends React.Component {
       );
   }
 
-  convert_values_object_to_dic(values){
-    let quiz = {}
-    quiz.Title = values.quiz_title;
-    let questions = [];
-    for (var i=0; i<10; i++){
-      let q = {}
-      if (values.hasOwnProperty("Question" + i)){
-        q.question = values["Question" + i]
-      }
-      for (var j=0; j<5; j++) {
-        if (values.hasOwnProperty("Answer"+i+ "_"+j)){
-          q['Answer'+(j+1)] = values["Answer"+i+ "_"+j]
-        }else{
-          q['Answer'+(j+1)] = '';
-        }
-        if (values.hasOwnProperty("Check"+i+ "_"+j)){
-          q['CorrectAnswer'+(j+1)] = values["Answer"+i+ "_"+j]
-        }else{
-          q['CorrectAnswer'+(j+1)] = '';
-        }
-      }
-      if (q.hasOwnProperty('question')){
-        questions.push(q);
-      }
-    }
-    quiz.Questions = questions;
-    return quiz;
-  }
-
-  handleQuizSubmit(values){
-    console.log(values)
-    let d = this.convert_values_object_to_dic(values);
-    this.creatDBRecords(d);
+  handleQuizSubmit(){
+    this.fetchDBRecordInDjango(this.props.match.permalink);
     this.props.navigate("/user_quiz_list")
   }
 
@@ -75,10 +46,29 @@ class Quiz extends React.Component {
     return text;
   }
 
-  getQuizContent(){
+  filtUpData(quiz){
+      let data = {};
+      data['quiz_title'] = quiz['Title']
+      let questions = quiz.Questions_set;
+      for (let i=0; i<questions.length; i++){
+            let key = "Question"+i;
+            data[key] = decodeURI(questions[i].Question);
+            for (var j=0; j<5; j++){
+                let key2 = "Answer"+i+"_"+j;
+                data[key2] = questions[i]['Answer'+(j+1)]
+            }
+            
+      }
+      return data;
+  }
+
+  getQuizContent(quiz){
     let text = "";
-      text = (<Formik
-                  initialValues={{}}
+    if(!!quiz){
+      let data = this.filtUpData(quiz);
+      text = (
+      <Formik
+                  initialValues={{...data }}
                   onSubmit={async (values) => {
                           await new Promise((resolve) => setTimeout(resolve, 500));
                           this.handleQuizSubmit(values);
@@ -90,27 +80,36 @@ class Quiz extends React.Component {
                       <tr key="quiz">
                           <tr key="quiz_t">
                           <th><label htmlFor="quiz_title">Quiz title:</label></th>
-                          <td><Field name="quiz_title" label='quiz_title' type="text" style={{width: '500px'}}/></td></tr>
+                          <td><div style={{width: '500px', textAlign: 'center',color: 'red'}}>
+                                   {quiz.Title}</div>
+                          </td></tr>
+                               
                           <td></td>
                           </tr>
-                          {Array.from({ length: 10 }).map(function(e, i) {
+                          {quiz.Questions_set.map(function(q, i) {
+                            let answers=[q.Answer1, q.Answer2, q.Answer3, q.Answer4, q.Answer5]
                             return (
                               <tr>
                                 <table>
                                 <tr>
-                                  <td><label htmlFor={"Question"+i}>{"Question"+(i+1)}:</label></td>
-                                  <td><Field name={"Question"+i} label={"Question"+i} type="text" style={{width: '500px'}}/></td>
+                                  <td style={{width: '30px'}}>&bull;</td>
+                                  <td  style={{width: '100%', whiteSpace:'nowrap'}}>
+                                      <div><span  style={{color:'grey'}}>{q.Question}</span>&nbsp;
+                                (&nbsp;
+                                    {answers.map(function(t, j) {
+                    
+                                        if(t){
+                                            return ( 
+                                                <span>{ (j !=0 ) && "  /  "}<button name={"Answer"+i+'_'+j}
+                                                    onClick={() => {this.showQuizList()}} 
+                                                    style={{border: "0px", backgroundColor: "white"}}>
+                                                        {t}
+                                                    </button></span>
+                                        )}
+                                    })}
+                                &nbsp;) </div>
+                                </td>
                                 </tr>
-                                {Array.from({ length: 5 }).map(function(t, j) {
-                                  return (
-                                    <tr>
-                                    <td><label htmlFor={"Answer"+i+'_'+j}>{"Answer"+(j+1)}:</label></td>
-                                    <td><Field name={"Answer"+i+'_'+j} label={"Answer"+i+'_'+j} type="text"  style={{width: '300px'}} /></td>
-                                    <td><Field name={"Check"+i+'_'+j} className="mr-2 leading-tight" type="checkbox" /></td>
-                                    <td><label htmlFor={"Check"+i+'_'+j}>Correct</label></td>
-                                    </tr>
-                                  );
-                                })}
                                 </table>
                               </tr>
                             );
@@ -124,7 +123,7 @@ class Quiz extends React.Component {
                   </Form>
               </Formik>
               );
-
+    }
     return text;
   }
 
@@ -137,7 +136,34 @@ class Quiz extends React.Component {
     
   }
 
+  getIdByPermalink(permalink){
+      let Id;
+      this.props.quizs.map(q => {
+        if (q.permalink === permalink){
+            Id = q.Id;
+        }
+      });
+      return Id;
+  }
+
+  getQuiz(permalink){
+      const Id = this.getIdByPermalink(permalink);
+      let quiz;
+      this.props.quizs_with_questions.map( q =>{
+        if (!!q && q.Id === Id){
+            quiz = q;
+        }
+      });
+      if (!quiz && this.first_time === 1){
+          this.props.dispatch(fetchQuizByID(Id))
+          this.first_time = 2;
+      }
+      return quiz;
+  }
+
   getQuizPart(){
+    let q = this.getQuiz(this.props.match.permalink);
+
     return (
       <div className="ml-6 pt-1">
         <HeaderBar navigate={this.props.navigate}/>
@@ -148,9 +174,9 @@ class Quiz extends React.Component {
         </h1>
         <br/>
         <h4  className="text-xl text-blue-700 leading-tight">
-            Quiz {this.props.match.permalink}.
+            {this.props.match.permalink}
         </h4>
-          
+          {this.getQuizContent(q)}
       </div>
     );
   }
@@ -164,7 +190,9 @@ class Quiz extends React.Component {
 const mapStateToProps = state => {
   return {
     error: state.movieListReducer.error,
-    user: state.movieListReducer.user
+    user: state.movieListReducer.user,
+    quizs_with_questions: state.movieListReducer.quizs_with_questions,
+    quizs: state.movieListReducer.quizs
   };
 };
 

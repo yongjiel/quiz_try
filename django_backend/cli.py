@@ -14,10 +14,10 @@ Options:
     -X --action action  Cli action, GET|POST|DELETE [default: 'GET']
     -i --id id          quiz id.
     -t --title title    Title of quiz
-    -u --user-password userpass  user and password for django backend login, default: 'admin:admin'
+    -u --user-password userpass  user and password for django backend login, default: admin
 """
 from docopt import docopt
-
+import html
 import pprint
 import requests
 from requests.auth import  HTTPDigestAuth
@@ -64,17 +64,17 @@ def post_quiz(r_json, token, title=None):
         # print("{} , {}, {}".format(q['question'], q['correct_answer'], 
         #                         q['incorrect_answers']))
         post_questions = {}
-        post_questions['question']=  q['question']
-        post_questions['CorrectAnswer1']=  q['correct_answer']
+        post_questions['question']=  html.unescape(q['question'])
+        post_questions['CorrectAnswer1']=  html.unescape(q['correct_answer'])
         post_questions['CorrectAnswer2']=  ''
         post_questions['CorrectAnswer3']=  ''
         post_questions['CorrectAnswer4']=  ''
         post_questions['CorrectAnswer5']=  ''
-        post_questions['Answer1']=  q['correct_answer']
+        post_questions['Answer1']=  html.unescape(q['correct_answer'])
         if q['incorrect_answers']:
             for i in range(len(q['incorrect_answers'])):
                 count = i+2
-                post_questions['Answer' + str(count)]=  q['incorrect_answers'][i]
+                post_questions['Answer' + str(count)]=  html.unescape(q['incorrect_answers'][i])
         if 'Answer2' not in post_questions:
             post_questions['Answer2']= ''
         if 'Answer3' not in post_questions:

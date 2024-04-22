@@ -137,19 +137,18 @@ class QuizApiView(APIView):
 
     def get(self, request, id=None):
         user = _get_user_by_token(request)
+        print("////////")
+        print(user, id)
         if id:
             try:
-                qz = Quiz.objects.get(Id=id, user=user)
+                qz = Quiz.objects.get(Id=id)
                 setattr(qz, 'Questions_set', qz.questions.all())
                 serializer = QuizSerializer(qz, context={'request': request})
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except Exception as e:
                 return Response(str(e), status=status.HTTP_404_NOT_FOUND)
 
-        if not user or user.username == 'admin':
-            qzs = Quiz.objects.filter().all()
-        else:
-            qzs = Quiz.objects.filter(user=user).all()
+        qzs = Quiz.objects.filter().all()
 
         for qz in qzs:
             setattr(qz, 'Questions_set', qz.questions.all())

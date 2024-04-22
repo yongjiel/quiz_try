@@ -15,8 +15,6 @@ class ToQuizForm extends React.Component {
       if (!!cookies.get('token')){
         token = cookies.get('token');
       }
-      console.log("/////")
-      console.log(token)
       if (!! token ) {
         return true;
       }else{

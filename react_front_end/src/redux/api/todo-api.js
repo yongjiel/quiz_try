@@ -143,14 +143,10 @@ export function fetchUserMovieListInDjango(token){
 
 export function fetchQuizByIDInDjango(Id){
   const url = `${process.env.REACT_APP_PROXY_HOST}/api/quizs/` + Id;
-  const config = {
-    headers: { 
-      //Authorization: `Token ${token}` // for normal token
-      Authorization: 'Bearer ' + cookies.get("token"),
-    }  
-  };
+  console.log("////")
+  console.log(url)
   // not for saga generator. return promise.
-  return axios.get(url, config)
+  return axios.get(url)
           .then(res=>{
             return res.data;
           })

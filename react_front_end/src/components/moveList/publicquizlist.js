@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { fetchAllQuizsInDjango } from "../../redux/actions/actions";
+import { fetchAllQuizsInDjango, fetchQuizByID } from "../../redux/actions/actions";
 import { cookies } from "../../redux/api/todo-api";
 import HeaderBar from "./headerbar";
 
@@ -8,13 +8,11 @@ import HeaderBar from "./headerbar";
 class PublicQuizList extends React.Component {
   constructor(props) {
     super(props);
-    this.handleQuizSubmit = this.handleQuizSubmit.bind(this);
     this.getQuizPart = this.getQuizPart.bind(this);
   }
 
-  handleQuizSubmit(values){
-    this.getUserQuizList(values);
-    this.props.navigate("/user_quiz_list")
+  redirectToQuiz(Id, permalink){
+    this.props.dispatch(fetchQuizByID(Id, this.props.navigate, "/quizs/"+permalink));
   }
 
   getQuizContent(){
@@ -30,11 +28,12 @@ class PublicQuizList extends React.Component {
                 {this.props.quizs.map((qz, i) => (
                     <tr key={'row'+i}>
                     <td key={qz.Title} style={{width: '600px'}}>
-                      <a onClick={()=>{this.props.navigate("/quizs/"+ qz.permalink)}} style={{color: "#2F020C"}}>
+
+                      <a onClick={()=>{this.redirectToQuiz(qz.Id, qz.permalink)}} style={{color: "#2F020C"}}>
                         <u>{qz.Title}</u></a>
                     </td>
                     <td style={{width: '150px'}}>
-                      <a onClick={()=>{this.props.navigate("/quizs/"+ qz.permalink)}} style={{color: "#2F020C"}}>
+                      <a onClick={()=>{this.redirectToQuiz(qz.Id, qz.permalink)}} style={{color: "#2F020C"}}>
                         <u>{qz.permalink}</u></a></td>
                     </tr>
                   ))

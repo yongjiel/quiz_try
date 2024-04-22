@@ -497,12 +497,15 @@ export function fetchUserAndGetQuizs(value, quizs, navigate, uri) {
 
 }
 
-export function fetchQuizByID(Id){
+export function fetchQuizByID(Id, navigate, uri){
   return dispatch => {
     fetchQuizByIDInDjango(Id)
-        .then(data => {
-          dispatch(addquiztoquizwithquestions(data)); // for jwt token
-          return data;
+        .then(quiz => {
+          dispatch(addquiztoquizwithquestions(quiz)); // for jwt token
+          if (navigate){
+            navigate(uri);
+          }
+          return quiz;
           })
       .catch(
         error => {
@@ -515,7 +518,9 @@ export function fetchQuizByID(Id){
 
 export function addquiztoquizwithquestions(data){
   return dispatch =>{
-    dispatch(addQuizToQuizWithQuestions(data));
+    if (!!data){
+      dispatch(addQuizToQuizWithQuestions(data));
+    }
   };
 }
 

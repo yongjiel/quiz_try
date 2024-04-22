@@ -15,17 +15,22 @@ class ToUserQuizList extends React.Component {
       if (!!cookies.get('token')){
         token = cookies.get('token');
       }
-      if (! token ) {
+      if (!! token ) {
+        return true;
+      }else{
         this.props.dispatch(error("Log in first!"));
         this.props.navigate("/login");
+        return false;
       }
     }
 
+
     showQuizList(){
-      this.loginRequired();
-      this.props.dispatch(
+      if(this.loginRequired()){
+        this.props.dispatch(
           fetchUserAndGetQuizs(null, this.props.quizs, this.props.navigate, "/user_quiz_list")
           );
+      } 
      }
     
     render() {
