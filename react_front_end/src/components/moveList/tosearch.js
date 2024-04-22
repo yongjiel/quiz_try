@@ -19,7 +19,7 @@ class ToSearchList extends React.Component {
     }
     
     render() {
-        return <button onClick={this.showSearchPart}  style={{border: "0px", backgroundColor: "#DAFCF7"}}> Back to search </button>;
+        return <button onClick={this.showSearchPart}  style={{border: "0px", backgroundColor: "#DAFCF7"}}> Search </button>;
     }
 
 }

@@ -160,6 +160,19 @@ export function fetchQuizByIDInDjango(Id){
             }
           );
 }
+export function fetchAllQuizListInDjango(){
+  const url = `${process.env.REACT_APP_PROXY_HOST}/api/quiz_summary/`;
+  // not for saga generator. return promise.
+  return axios.get(url)
+          .then(res=>{
+            return res.data;
+          })
+          .catch(
+            error => {
+              console.log(error);
+            }
+          );
+}
 
 export function fetchUserQuizListInDjango(token){
   const url = `${process.env.REACT_APP_PROXY_HOST}/api/quiz_summary/`;

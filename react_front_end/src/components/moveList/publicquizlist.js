@@ -1,23 +1,20 @@
 import React from "react";
 import { connect } from "react-redux";
-import { error, deletequiz, fetchUserQuizsInDjango} from "../../redux/actions/actions";
+import { fetchAllQuizsInDjango } from "../../redux/actions/actions";
 import { cookies } from "../../redux/api/todo-api";
 import HeaderBar from "./headerbar";
 
 
-class UserQuizList extends React.Component {
+class PublicQuizList extends React.Component {
   constructor(props) {
     super(props);
+    this.handleQuizSubmit = this.handleQuizSubmit.bind(this);
     this.getQuizPart = this.getQuizPart.bind(this);
   }
 
-  delete(qz){
-    if(window.confirm('Are you sure to delete this record?')){ 
-      let index = this.props.quizs.indexOf(qz);
-      let index_full = this.props.quizs_with_questions.findIndex(
-                                              item => item.Id === qz.Id);
-      this.props.dispatch(deletequiz(index, index_full, qz.Id,  this.props.navigate));
-    }
+  handleQuizSubmit(values){
+    this.getUserQuizList(values);
+    this.props.navigate("/user_quiz_list")
   }
 
   getQuizContent(){
@@ -28,22 +25,17 @@ class UserQuizList extends React.Component {
                 <tr key="quiz_table_header">
                   <th key="quiz_table_header1"  style={{textAlign: 'left', width: '600px'}}>Title</th>
                   <th key="quiz_table_header2"  style={{textAlign: 'left', width: '150px'}}>Number</th>
-                  <th key="quiz_table_header3">Delete?</th>
                 </tr>
               
                 {this.props.quizs.map((qz, i) => (
                     <tr key={'row'+i}>
                     <td key={qz.Title} style={{width: '600px'}}>
-                      <a onClick={()=>{this.props.navigate("/quizs/"+qz.permalink)}} style={{color: "#2F020C"}}>
+                      <a onClick={()=>{this.props.navigate("/quizs/"+ qz.permalink)}} style={{color: "#2F020C"}}>
                         <u>{qz.Title}</u></a>
                     </td>
                     <td style={{width: '150px'}}>
-                      <a onClick={()=>{this.props.navigate("/quizs/"+qz.permalink)}} style={{color: "#2F020C"}}>
+                      <a onClick={()=>{this.props.navigate("/quizs/"+ qz.permalink)}} style={{color: "#2F020C"}}>
                         <u>{qz.permalink}</u></a></td>
-                    <td><button 
-                      className="text-base our-red our-light-grey-background leading-normal"
-                      onClick={ () => {this.delete(qz)} } >
-                        Delete</button></td>
                     </tr>
                   ))
                 }
@@ -61,10 +53,8 @@ class UserQuizList extends React.Component {
       <div className="ml-6 pt-1">
         <HeaderBar navigate={this.props.navigate}/>
         <h1 className="text-2xl text-blue-700 leading-tight">
-          Hi, { this.get_user() }
+          Hi, {this.props.user || "Visitor"}
         </h1>
-
-          { this.checkError() }
           { this.getQuizContent() }
       </div>
     );
@@ -82,35 +72,12 @@ class UserQuizList extends React.Component {
     return '';
   }
 
-  checkTokenUser(token){
-    if (token || this.props.user ){
-      //
-    }else{
-      this.props.dispatch(error("Could not identify user"));
-      this.props.navigate("/login");
-    }
-    
+  fetchAllQuizList(){
+    this.props.dispatch(fetchAllQuizsInDjango(this.props.quizs));
   }
-
-  fetchUserQuizList(token){
-    if (token || this.props.user ){
-      this.props.dispatch(fetchUserQuizsInDjango(token, this.props.quizs, this.props,null));
-    }else{
-      this.props.dispatch(error("Could not identify user"));
-      this.props.navigate("/login");
-    } 
-  }
-
+  
   render() {
-    
-    let token = null;
-    if (!!cookies.get('token')){
-      token = cookies.get('token');
-    }
-
-    this.checkTokenUser(token);
-    this.fetchUserQuizList(token);
-
+    this.fetchAllQuizList();
     return this.getQuizPart();
   }
 }
@@ -121,12 +88,10 @@ const mapStateToProps = state => {
     error: state.movieListReducer.error,
     user: state.movieListReducer.user,
     quizs: state.movieListReducer.quizs,
-    isOpenQuizModal: state.movieListReducer.isOpenQuizModal,
-    modalQuizId: state.movieListReducer.modalQuizId,
     quizs_with_questions: state.movieListReducer.quizs_with_questions
   };
 };
 
-export default connect(mapStateToProps)(UserQuizList);
+export default connect(mapStateToProps)(PublicQuizList);
 
 

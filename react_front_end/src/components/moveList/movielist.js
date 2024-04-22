@@ -4,15 +4,13 @@ import SearchBox from "../searchBox";
 import { 
     fetchMovieList,
     addmovie,
-    backtoSearchPart,
     clearSearchMovies
 } from "../../redux/actions/actions";
-import LogOut from "./logout";
-import ToQizeForm from "./toquizform";
-import ToUserQuizList from "./touserquizlist";
 import ToUserMovieList from "./touserlist";
 import { fetchMovieListInDjango, fetchUserFailure } from "../../redux/actions/actions";
 import { cookies } from "../../redux/api/todo-api";
+import HeaderBar from "./headerbar";
+
 
 class MovieList extends React.Component {
     constructor(props) {
@@ -24,7 +22,6 @@ class MovieList extends React.Component {
       this.refetchUserMovieList= this.refetchUserMovieList.bind(this);
       this.first_time= true;
       this.getList = this.getList.bind(this);
-      this.showSearchPart = this.showSearchPart.bind(this);
     }
 
     checkUserList(){
@@ -52,18 +49,6 @@ class MovieList extends React.Component {
         this.props.dispatch(addmovie(post, this.props.navigate));
       }
       
-    }
-
-    showQuizFormButton(){
-      return <ToQizeForm navigate={this.props.navigate}/>;            
-    }
-
-    showLogoutButton(){
-        return <LogOut navigate={this.props.navigate}/>;            
-    }
-
-    showSearchPart(){
-        this.props.dispatch(backtoSearchPart());
     }
 
     checkInUserMovies(imdbID){
@@ -111,10 +96,7 @@ class MovieList extends React.Component {
     getSearchPart(){
       return (
         <div>
-          {this.showLogoutButton()}&nbsp;&nbsp;&nbsp;
-          {this.showQuizFormButton()}&nbsp;&nbsp;&nbsp;
-          <ToUserQuizList navigate={this.props.navigate}/>&nbsp;&nbsp;&nbsp;
-          <ToUserMovieList navigate={this.props.navigate}/>
+          <HeaderBar navigate={this.props.navigate}/>
           
           {this.checkUserList()}
           <br/><br/>

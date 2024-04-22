@@ -2,11 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Formik, Field, Form } from "formik";
 import { postQuiz } from "../../redux/actions/actions";
-import LogOut from "./logout";
-import ToQuizForm from "./toquizform";
-import ToUserQuizList from "./touserquizlist";
-import ToUserMovieList from "./touserlist";
-import ToSearchList from "./tosearch";
+import HeaderBar from "./headerbar";
 
 
 class QuizForm extends React.Component {
@@ -128,21 +124,10 @@ class QuizForm extends React.Component {
     return text;
   }
 
-  get_header_link_part(){
-    return (
-      <div>
-        <LogOut navigate={this.props.navigate}/> &nbsp;&nbsp;&nbsp;
-        <ToQuizForm navigate={this.props.navigate}/>&nbsp;&nbsp;&nbsp;
-        <ToUserQuizList navigate={this.props.navigate}/>&nbsp;&nbsp;&nbsp;
-        <ToUserMovieList navigate={this.props.navigate}/> &nbsp;&nbsp;&nbsp;
-        <ToSearchList navigate={this.props.navigate}/>
-      </div>);
-  }
-
   getQuizPart(){
     return (
       <div className="ml-6 pt-1">
-        { this.get_header_link_part() }
+        <HeaderBar navigate={this.props.navigate}/>
         <h1 className="text-2xl text-blue-700 leading-tight">
           Hi, { this.get_user() }
         </h1>

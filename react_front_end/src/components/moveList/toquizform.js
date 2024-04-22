@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
-import {  showQuizform } from "../../redux/actions/actions";
+import {  showQuizform, error } from "../../redux/actions/actions";
+import { cookies } from "../../redux/api/todo-api";
 
 
 class ToQuizForm extends React.Component {
@@ -9,15 +10,33 @@ class ToQuizForm extends React.Component {
       this.showQuizForm = this.showQuizForm.bind(this);
     }
 
-    
+    loginRequired(){
+      let token = null;
+      if (!!cookies.get('token')){
+        token = cookies.get('token');
+      }
+      console.log("/////")
+      console.log(token)
+      if (!! token ) {
+        return true;
+      }else{
+        this.props.dispatch(error("Log in first!"));
+        this.props.navigate("/login");
+        return false;
+      }
+    }
+
     showQuizForm(){
-        this.props.dispatch(showQuizform());
-        this.props.navigate("/user_quiz_form");
+        if(this.loginRequired()){
+          this.props.dispatch(showQuizform());
+          this.props.navigate("/user_quiz_form");
+        }  
      }
+
     
     render() {
           return <button
-          onClick={this.showQuizForm} style={{border: "0px", backgroundColor: "#DAFCF7"}}>Quiz Form</button>;
+          onClick={this.showQuizForm} style={{border: "0px", backgroundColor: "#DAFCF7"}}>New Quiz Form</button>;
     }
 
 }

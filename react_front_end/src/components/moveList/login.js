@@ -1,7 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
-import { fetchUser, error} from "../../redux/actions/actions";
+import { fetchUserAndGetQuizs } from "../../redux/actions/actions";
 import { Formik, Field, Form } from "formik";
+import HeaderBar from "./headerbar";
 
 
 class LogIn extends React.Component {
@@ -13,7 +14,7 @@ class LogIn extends React.Component {
 
     getUserAndMovies(values){
       this.props.dispatch(
-            fetchUser(values, this.props.user_movies, this.props.navigate, "/search")
+        fetchUserAndGetQuizs(values, this.props.quizs, this.props.navigate, "/user_quiz_list")
         );
     }
 
@@ -52,7 +53,7 @@ class LogIn extends React.Component {
           if (this.props.error.search(/Invalid user email format/i) > -1){
             return '';
           }
-          const text = (<p className="text-base our-red our-background leading-normal" >{this.props.error}</p>);
+          const text = (<p className="text-base our-blue our-background" >{this.props.error}</p>);
           return text;
         }
         return '';
@@ -61,6 +62,7 @@ class LogIn extends React.Component {
     getLoginPart(){
       return (
         <div className="ml-6 pt-1">
+          <HeaderBar navigate={this.props.navigate}/>
           <h1 className="text-2xl text-blue-700 leading-tight">
             Log in
           </h1>
@@ -82,7 +84,8 @@ class LogIn extends React.Component {
 const mapStateToProps = state => {
   return {
     error: state.movieListReducer.error,
-    user_movies: state.movieListReducer.user_movies
+    user_movies: state.movieListReducer.user_movies,
+    quizs: state.movieListReducer.quizs
   };
 };
 

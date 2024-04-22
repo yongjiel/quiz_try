@@ -7,6 +7,7 @@ import {
   fetchTokenInDjango,
   fetchUserMovieListInDjango,
   fetchUserQuizListInDjango,
+  fetchAllQuizListInDjango,
   fetchQuizByIDInDjango,
   postQuizInDjango,
   createNewUser,
@@ -67,7 +68,6 @@ function fetchMoviesByPage(moviePartialText, page) {
         dispatch(fetchMovieListInProgress({page: st.page}));
       }
     }catch(error){
-        console.log("......////");
         console.log(error.message);
         dispatch(fetchMovieListFailure({error: error.message}));
     };
@@ -270,6 +270,8 @@ export function openquizmodal(Id){
 
 export function logout(){
   return dispatch => {
+    cookies.remove('token');
+    cookies.remove('user')
     dispatch(logOut())};
 }
 
@@ -346,7 +348,9 @@ export function deletequiz(i, i_in_full, id, navigate){
           if ( [401].includes(res.status) ){
             alert("Token timeout! Back to login");
             dispatch(logOut());
-            navigate('/login');
+            if (!! navigate){
+              navigate('/login');
+            }
           }else{
             dispatch(deleteQuizFailure());
           }
@@ -386,7 +390,7 @@ function is_not_in_quizs(qzs, id){
 export function fetchMovieListInDjango(token, mvs, navigate, uri) {
   return dispatch => {
     if (token === null){
-      dispatch(fetchUserFailure("Could not get user's movies"));
+      dispatch(fetchUserFailure("Token missing"));
       return;
     }
     fetchUserMovieListInDjango(token)
@@ -396,7 +400,6 @@ export function fetchMovieListInDjango(token, mvs, navigate, uri) {
           dispatch(addmovie(m));
         }
       });
-      cookies.set('token', token);
       dispatch(fetchUserSuccess());
       if (navigate !== null){
         navigate(uri);
@@ -405,7 +408,7 @@ export function fetchMovieListInDjango(token, mvs, navigate, uri) {
     }).catch(
       error => {
         console.log(error);
-        dispatch(fetchUserFailure("Could not get user's movies"));
+        dispatch(fetchUserFailure("Authentication failed"));
       }
     );
   };
@@ -419,12 +422,19 @@ export function fetchUserQuizsInDjango(token, qzs, navigate, uri) {
     }
     fetchUserQuizListInDjango(token)
     .then(quizs=> {
+      let Ids = [];
       quizs.map(q => {
+        Ids.push(q.Id);
         if ( is_not_in_quizs(qzs, q.Id) ){
           dispatch(addquiz(q));
         }
       });
-      cookies.set('token', token);
+      // delete extra from props.quizs
+      qzs.map((q,i) =>{
+        if (! Ids.includes(q.Id) ){
+          dispatch(deleteQuiz(i));
+        }  
+      });
       dispatch(fetchQuizSuccess());
       if (navigate !== null){
         navigate(uri);
@@ -439,18 +449,38 @@ export function fetchUserQuizsInDjango(token, qzs, navigate, uri) {
   };
 }
 
-export function fetchUser(value, mvs, navigate, uri) {
+export function fetchAllQuizsInDjango(qzs) {
   return dispatch => {
-    cookies.set('user', value.username);
-    var username = value.username || cookies.get('user');
-    dispatch(fetchUserBegin(username));
-    
-    fetchTokenInDjango(value)
+    fetchAllQuizListInDjango()
+    .then(quizs=> {
+      quizs.map(q => {
+        if ( is_not_in_quizs(qzs, q.Id) ){
+          dispatch(addquiz(q));
+        }
+      });
+      dispatch(fetchQuizSuccess());
+      return quizs;
+    }).catch(
+      error => {
+        console.log(error);
+        dispatch(fetchQuizFailure("Could not get user's quiz"));
+      }
+    );
+  };
+}
+
+
+export function fetchUserAndGetQuizs(value, quizs, navigate, uri) {
+  return dispatch => {
+    if ( !! value ){
+      cookies.set('user', value.username);
+      var username = value.username || cookies.get('user');
+      dispatch(fetchUserBegin(username));
+      fetchTokenInDjango(value)
         .then(data => {
-          dispatch(fetchMovieListInDjango(data.access, mvs, navigate, uri)); // for jwt token
-          //    dispatch(fetchMovieListInDjango(data.key, mvs, navigate, uri)); // for normal token
-              //dispatch(fetchUserMovieSuccess(mvss)); //search_movies for loading 10 records from source site.
-              return data.key;
+          cookies.set('token', data.access);
+          dispatch(fetchUserQuizsInDjango(data.access, quizs, navigate, uri));
+          return data.key;
           })
       .catch(
         error => {
@@ -458,6 +488,11 @@ export function fetchUser(value, mvs, navigate, uri) {
           dispatch(fetchUserFailure(error));
         }
       );
+      
+    }else{
+      let token = cookies.get('token');
+      dispatch(fetchUserQuizsInDjango(token, quizs, navigate, uri));
+    }
   };
 
 }
@@ -517,7 +552,6 @@ export function postNewUser(values,  navigate, uri){
       );
   }
 }
-
 
 export function error(message){
   return dispatch => {

@@ -4,12 +4,9 @@ import {
     showUsermovies, deletmovie, closemodal, openmodal} 
     from "../../redux/actions/actions";
 import Modal from "react-modal";
-import LogOut from "./logout";
-import ToQuizForm from "./toquizform";
-import ToUserQuizList from "./touserquizlist";
-import ToSearchList from "./tosearch";
 import { fetchMovieListInDjango, fetchUserFailure } from "../../redux/actions/actions";
 import { cookies } from "../../redux/api/todo-api";
+import HeaderBar from "./headerbar";
 
 
 class UserMovieList extends React.Component {
@@ -44,14 +41,6 @@ class UserMovieList extends React.Component {
       }
       return false;
     }
-   
-    showLogoutButton(){
-        return <LogOut navigate={this.props.navigate}/>;            
-    }
-    
-    showQuizFormButton(){
-      return <ToQuizForm navigate={this.props.navigate}/>;            
-    }
 
     openModal(imdbID){
       this.props.dispatch(openmodal(imdbID));
@@ -60,9 +49,7 @@ class UserMovieList extends React.Component {
     getUserMoviesPart(){
       let text = "";
         text = (<div>
-                {this.showLogoutButton()}&nbsp;&nbsp;&nbsp;{this.showQuizFormButton()}&nbsp;&nbsp;&nbsp;
-                <ToUserQuizList navigate={this.props.navigate}/> &nbsp;&nbsp;&nbsp;
-                <ToSearchList navigate={this.props.navigate}/>
+                <HeaderBar navigate={this.props.navigate}/>
                 <br/><br/>
                 <h1>Hi, User, your Movie List. </h1>
                 <table key='table'>

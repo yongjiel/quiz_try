@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { postNewUser, error } from "../../redux/actions/actions";
 import { Formik, Field, Form } from "formik";
+import HeaderBar from "./headerbar";
 
 
 class Register extends React.Component {
@@ -73,6 +74,7 @@ class Register extends React.Component {
     getRegisterPart(){
       return (
         <div className="ml-6 pt-1">
+          <HeaderBar navigate={this.props.navigate}/>
           <h1 className="text-2xl text-blue-700 leading-tight">
             Register
           </h1>

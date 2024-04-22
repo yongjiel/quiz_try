@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
-import {  showQuizlist } from "../../redux/actions/actions";
+import { fetchUserAndGetQuizs, error } from "../../redux/actions/actions";
+import { cookies } from "../../redux/api/todo-api";
 
 
 class ToUserQuizList extends React.Component {
@@ -9,15 +10,27 @@ class ToUserQuizList extends React.Component {
       this.showQuizList = this.showQuizList.bind(this);
     }
 
-    
+    loginRequired(){
+      let token = null;
+      if (!!cookies.get('token')){
+        token = cookies.get('token');
+      }
+      if (! token ) {
+        this.props.dispatch(error("Log in first!"));
+        this.props.navigate("/login");
+      }
+    }
+
     showQuizList(){
-        //this.props.dispatch(showQuizlist());
-        this.props.navigate("/user_quiz_list");
+      this.loginRequired();
+      this.props.dispatch(
+          fetchUserAndGetQuizs(null, this.props.quizs, this.props.navigate, "/user_quiz_list")
+          );
      }
     
     render() {
           return <button
-          onClick={this.showQuizList} style={{border: "0px", backgroundColor: "#DAFCF7"}}>Quiz List</button>;
+          onClick={() => {this.showQuizList()}} style={{border: "0px", backgroundColor: "#DAFCF7"}}>User Quiz List</button>;
     }
 
 }
@@ -25,6 +38,8 @@ class ToUserQuizList extends React.Component {
 
 const mapStateToProps = state => {
   return {
+    quizs: state.movieListReducer.quizs,
+    user: state.movieListReducer.user
   };
 };
 

@@ -234,7 +234,9 @@ import {
       case DELETE_QUIZ:
         return {
           ...state,
-          quizs: [],
+          quizs: [
+                ...state.quizs.slice(0, action.payload.i),
+                ...state.quizs.slice(action.payload.i+1)],
           show_user_movies_flag: false,
           show_quiz_list: true,
           show_quiz_form: false
