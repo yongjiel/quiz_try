@@ -181,6 +181,26 @@ export function fetchUserQuizListInDjango(token){
           );
 }
 
+export function postQuizInDjango(data_obj){
+  const url = `${process.env.REACT_APP_PROXY_HOST}/api/quizs/`;
+  const config = {
+    headers: { 
+      //Authorization: `Token ${token}` // for normal token
+      Authorization: 'Bearer ' + cookies.get("token"),
+    }  
+  };
+  // not for saga generator. return promise.
+  return axios.post(url, data_obj, config)
+          .then(res=>{
+            return res.data;
+          })
+          .catch(
+            error => {
+              console.log(error);
+            }
+          );
+}
+
 export function fetchNewUser(){
 
 };

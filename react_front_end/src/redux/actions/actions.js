@@ -8,6 +8,7 @@ import {
   fetchUserMovieListInDjango,
   fetchUserQuizListInDjango,
   fetchQuizByIDInDjango,
+  postQuizInDjango,
   cookies
 } from "../api/todo-api";
 
@@ -458,8 +459,6 @@ export function fetchQuizByID(Id){
   return dispatch => {
     fetchQuizByIDInDjango(Id)
         .then(data => {
-          console.log("999999")
-          console.log(data);
           dispatch(addquiztoquizwithquestions(data)); // for jwt token
           return data;
           })
@@ -476,4 +475,21 @@ export function addquiztoquizwithquestions(data){
   return dispatch =>{
     dispatch(addQuizToQuizWithQuestions(data));
   };
+}
+
+export function postQuiz(d, navigate, uri){
+  return dispatch => {
+    postQuizInDjango(d)
+        .then(data => {
+          if (navigate !== null){
+            navigate(uri);
+          }
+        })
+      .catch(
+        error => {
+          console.log(error);
+          dispatch(fetchQuizFailure(error));
+        }
+      );
+  }
 }

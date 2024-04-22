@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Formik, Field, Form } from "formik";
-import { fetchUser} from "../../redux/actions/actions";
+import { postQuiz } from "../../redux/actions/actions";
 import LogOut from "./logout";
 import ToQuizForm from "./toquizform";
 import ToUserQuizList from "./touserquizlist";
@@ -14,18 +14,49 @@ class QuizForm extends React.Component {
     super(props);
     this.handleQuizSubmit = this.handleQuizSubmit.bind(this);
     this.getQuizPart = this.getQuizPart.bind(this);
+    this.creatDBRecords = this.creatDBRecords.bind(this);
   }
   
-  creatDBRecords(values){
+  creatDBRecords(d){
     this.props.dispatch(
-          fetchUser(values, this.props.user_movies, this.props.navigate, "/search")
+          postQuiz(d, this.props.navigate, '/user_quiz_list')
       );
+  }
+
+  convert_values_object_to_dic(values){
+    let quiz = {}
+    quiz.Title = values.quiz_title;
+    let questions = [];
+    for (var i=0; i<10; i++){
+      let q = {}
+      if (values.hasOwnProperty("Question" + i)){
+        q.question = values["Question" + i]
+      }
+      for (var j=0; j<5; j++) {
+        if (values.hasOwnProperty("Answer"+i+ "_"+j)){
+          q['Answer'+(j+1)] = values["Answer"+i+ "_"+j]
+        }else{
+          q['Answer'+(j+1)] = '';
+        }
+        if (values.hasOwnProperty("Check"+i+ "_"+j)){
+          q['CorrectAnswer'+(j+1)] = values["Answer"+i+ "_"+j]
+        }else{
+          q['CorrectAnswer'+(j+1)] = '';
+        }
+      }
+      if (q.hasOwnProperty('question')){
+        questions.push(q);
+      }
+    }
+    quiz.Questions = questions;
+    return quiz;
   }
 
   handleQuizSubmit(values){
     console.log(values)
-    // this.creatDBRecords(values);
-    // this.props.navigate("/user_quiz_list")
+    let d = this.convert_values_object_to_dic(values);
+    this.creatDBRecords(d);
+    this.props.navigate("/user_quiz_list")
   }
 
   handleInputChange(event) {
@@ -65,20 +96,22 @@ class QuizForm extends React.Component {
                           {Array.from({ length: 10 }).map(function(e, i) {
                             return (
                               <tr>
-                                <tr key={"Question"+(i+1)}>
-                                  <td><label htmlFor={"Question"+(i+1)}>{"Question"+(i+1)}:</label></td>
-                                  <td><Field name={"Question"+(i+1)} label={"Question"+(i+1)} type="text" style={{width: '500px'}}/></td>
+                                <table>
+                                <tr>
+                                  <td><label htmlFor={"Question"+i}>{"Question"+(i+1)}:</label></td>
+                                  <td><Field name={"Question"+i} label={"Question"+i} type="text" style={{width: '500px'}}/></td>
                                 </tr>
                                 {Array.from({ length: 5 }).map(function(t, j) {
                                   return (
                                     <tr>
-                                    <td><label htmlFor={"Answer"+(i+1)+'_'+(j+1)}>{"Answer"+(j+1)}:</label></td>
-                                    <td><Field name={"Answer"+(i+1)+'_'+(j+1)} label={"Answer"+(i+1)+'_'+(j+1)} type="text"  style={{width: '300px'}} /></td>
-                                    <td><Field name={"Check"+(i+1)+'_'+(j+1)} className="mr-2 leading-tight" type="checkbox" /></td>
-                                    <td><label htmlFor={"Check"+(i+1)+'_'+(j+1)}>Correct</label></td>
+                                    <td><label htmlFor={"Answer"+i+'_'+j}>{"Answer"+(j+1)}:</label></td>
+                                    <td><Field name={"Answer"+i+'_'+j} label={"Answer"+i+'_'+j} type="text"  style={{width: '300px'}} /></td>
+                                    <td><Field name={"Check"+i+'_'+j} className="mr-2 leading-tight" type="checkbox" /></td>
+                                    <td><label htmlFor={"Check"+i+'_'+j}>Correct</label></td>
                                     </tr>
                                   );
                                 })}
+                                </table>
                               </tr>
                             );
                             }
