@@ -34,12 +34,11 @@ def _get_user_by_token(request):
 
 
 class UserMoviesApiView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = (JWTAuthentication,TokenAuthentication,SessionAuthentication)
+    # permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = (JWTAuthentication,TokenAuthentication,SessionAuthentication)
     serializer_class = MovieSerializer
 
     def get(self, request, *args, **kwargs):
-        print("//.//////")
         user = _get_user_by_token(request)
         print(user.id)
         uvs = UserMovie.objects.filter(user=user).all()
@@ -50,8 +49,8 @@ class UserMoviesApiView(APIView):
         return Response(mvs, status=status.HTTP_200_OK)
 
 class MovieRatingsApiView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
+    # permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
     serializer_class = MovieRatingSerializer
 
     def get(self, request, *args, **kwargs):
@@ -62,8 +61,8 @@ class MovieRatingsApiView(APIView):
 
 
 class MoviesApiView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
+    # permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
     serializer_class = MovieSerializer
 
     def get(self, request, id=None):
@@ -133,46 +132,7 @@ class MoviesApiView(APIView):
         return Response(None, status=204)
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class QuestionApiView(APIView):
-    # permission_classes = [permissions.IsAuthenticated]
-    # authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
-    serializer_class = QuestionSerializer
-
-    def get(self, request, id=None):
-        if id:
-            try:
-                q = Question.objects.get(Id=id)
-                serializer = QuestionSerializer(q)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response(str(e), status=status.HTTP_404_NOT_FOUND)
-
-        qs = Question.objects.all()
-        serializer = QuestionSerializer(qs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class QuizApiView(APIView):
-    # permission_classes = [permissions.IsAuthenticated]
-    # authentication_classes = (JWTAuthentication, TokenAuthentication,SessionAuthentication)
     serializer_class = QuizSerializer
 
     def get(self, request, id=None):
@@ -186,8 +146,7 @@ class QuizApiView(APIView):
             except Exception as e:
                 return Response(str(e), status=status.HTTP_404_NOT_FOUND)
 
-        print(" ///// {} {}".format(user.id, user.username))
-        if user.username == 'admin':
+        if not user or user.username == 'admin':
             qzs = Quiz.objects.filter().all()
         else:
             qzs = Quiz.objects.filter(user=user).all()
@@ -201,6 +160,8 @@ class QuizApiView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data 
         user = _get_user_by_token(request)
+        if not user:
+            return Response("user must log in first", status=status.HTTP_400_BAD_REQUEST)
         qz, response_obj = _create_quiz_and_questions_records(data, user)
         if response_obj:
             return response_obj
@@ -211,6 +172,8 @@ class QuizApiView(APIView):
     
     def delete(self, request, id, *args, **kwargs):
         user = _get_user_by_token(request)
+        if not user:
+            return Response("user must log in first", status=status.HTTP_400_BAD_REQUEST)
         if not id:
             return Response("id must be defined.", status=status.HTTP_400_BAD_REQUEST)
         
@@ -236,8 +199,7 @@ class QuizSummaryApiView(APIView):
 
     def get(self, request):
         user = _get_user_by_token(request)
-        print(" ///// {} {}".format(user.id, user.username))
-        if user.username == 'admin':
+        if not user or user.username == 'admin':
             qzs = Quiz.objects.filter().all()
         else:
             qzs = Quiz.objects.filter(user=user).all()
@@ -291,4 +253,19 @@ def _create_quiz_and_questions_records(data, user):
         return None, response_obj
 
     
+class UserCreate(APIView):
+    """ 
+    Creates the user. 
+    """
 
+    def post(self, request, format='json'):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            if user:
+                token = Token.objects.create(user=user)
+                json = serializer.data
+                json['token'] = token.key
+                return Response(json, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

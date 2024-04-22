@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { fetchUser} from "../../redux/actions/actions";
+import { fetchUser, error} from "../../redux/actions/actions";
 import { Formik, Field, Form } from "formik";
 
 
@@ -49,8 +49,11 @@ class LogIn extends React.Component {
 
     checkError(){
         if (!!this.props.error){
-            const text = (<p className="text-base our-red our-background leading-normal" >{this.props.error}</p>);
-            return text;
+          if (this.props.error.search(/Invalid user email format/i) > -1){
+            return '';
+          }
+          const text = (<p className="text-base our-red our-background leading-normal" >{this.props.error}</p>);
+          return text;
         }
         return '';
       }

@@ -201,6 +201,26 @@ export function postQuizInDjango(data_obj){
           );
 }
 
+export function createNewUser(values){
+  const url = `${process.env.REACT_APP_PROXY_HOST}/api/users/`;
+
+  const data = {'username': values.useremail,
+         'email': values.useremail,
+        'password': values.password };
+  // not for saga generator. return promise.
+  return axios.post(url, data)
+          .then(res=>{
+            return res.data;
+          })
+          .catch(
+            error => {
+              console.log(error);
+            }
+          );
+}
+
+
+
 export function fetchNewUser(){
 
 };

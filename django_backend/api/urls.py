@@ -7,7 +7,7 @@ from .views import (
     UserMoviesApiView,
     QuizApiView,
     QuizSummaryApiView,
-    QuestionApiView
+    UserCreate
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -16,17 +16,11 @@ from rest_framework_simplejwt.views import (
 )
 
 from .view_test import TokenValidationView
-from rest_framework import routers
-from .views import UserViewSet, GroupViewSet
 
-router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-router.register(r'groups', GroupViewSet)
 
 urlpatterns = [
     re_path(r"^movies/?(?P<id>\w+)?", MoviesApiView.as_view(), name="get_movies",),
     path('ratings', MovieRatingsApiView.as_view()),
-    path('', include(router.urls)),
     path('validate-token/', TokenValidationView.as_view(), name='validate-token',),
     re_path(r'^userlist/?', UserMoviesApiView.as_view(), name='user-movie-list',),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -35,4 +29,5 @@ urlpatterns = [
     re_path(r"^quizs/?(?P<id>\w+)?", QuizApiView.as_view(), name="get_quizs",),
     re_path(r"^quiz_summary/", QuizSummaryApiView.as_view(), name="get_quizs",),
     re_path(r"^questions/?(?P<id>\w+)?", QuizApiView.as_view(), name="get_questions",),
+    re_path(r'users/', UserCreate.as_view(), name='account-create'),
 ]

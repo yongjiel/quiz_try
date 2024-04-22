@@ -33,7 +33,8 @@ import {
     CLOSE_MODAL,
     OPEN_MODAL,
     OPEN_QUIZ_MODAL,
-    CLOSE_QUIZ_MODAL
+    CLOSE_QUIZ_MODAL,
+    ERROR
   } from '../actions/actions';
   
   const initialState = {
@@ -63,6 +64,7 @@ import {
   export default function movieListReducer(state = initialState, action) {
     console.log('movieListReducer', state, action);
     switch(action.type) {
+
       case FETCH_MOVIE_LIST_BEGIN:
         return state;
 
@@ -356,6 +358,11 @@ import {
             show_quiz_list: true,
             show_quiz_form: false
           }
+
+        case ERROR:
+          return {...state,
+                error: action.payload.msg
+            };
         
       default:
         return state;

@@ -9,6 +9,7 @@ import {
   fetchUserQuizListInDjango,
   fetchQuizByIDInDjango,
   postQuizInDjango,
+  createNewUser,
   cookies
 } from "../api/todo-api";
 
@@ -115,6 +116,12 @@ export const OPEN_MODAL = "OPEN_MODAL";
 export const OPEN_QUIZ_MODAL = 'OPEN_QUIZ_MODAL';
 export const CLOSE_QUIZ_MODAL = 'CLOSE_QUIZ_MODAL';
 export const CLEAR_SEARCH_MOVIES = "CLEAR_SEARCH_MOVIES";
+export const ERROR = "ERROR";
+
+export const errorDirect = (msg) => ({
+  type: ERROR,
+  payload: {msg}
+});
 
 export const closeModal = () => ({
   type: CLOSE_MODAL
@@ -491,5 +498,29 @@ export function postQuiz(d, navigate, uri){
           dispatch(fetchQuizFailure(error));
         }
       );
+  }
+}
+
+export function postNewUser(values,  navigate, uri){
+  return dispatch => {
+    createNewUser(values)
+      .then(data => {
+        if (navigate !== null){
+          navigate(uri);
+        }
+      })
+      .catch(
+        error => {
+          console.log(error);
+          dispatch(error(error));
+        }
+      );
+  }
+}
+
+
+export function error(message){
+  return dispatch => {
+    dispatch(errorDirect(message))
   }
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import MovieList from "./components/moveList/movielist";
 import LogIn from "./components/moveList/login";
+import Register from "./components/moveList/register";
 import QuizForm from "./components/moveList/quizform";
 import UserQuizList from "./components/moveList/userquizlist";
 //import LogOut from "./components/moveList/logout";
@@ -40,6 +41,7 @@ function AppRoutes() {
       <Routes>        
         <Route index path='/' element={ <Navigate to='/login' /> } />
         <Route index path='/login' element={ <LogIn navigate={navigate}/>} />
+        <Route index path='/register' element={ <Register navigate={navigate}/>} />
         <Route index path='/user_quiz_form' element={ <QuizForm  navigate={navigate}/>} />
         <Route index path='/user_quiz_list' element={ <UserQuizList  navigate={navigate}/>} />
         <Route index path='/search' element={ <MovieList  navigate={navigate}/>} />
