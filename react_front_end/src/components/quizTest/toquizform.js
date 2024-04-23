@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import {  showQuizform, error } from "../../redux/actions/actions";
+import {  showQuizform, error, emptyanswers } from "../../redux/actions/actions";
 import { cookies } from "../../redux/api/todo-api";
 
 
@@ -25,6 +25,7 @@ class ToQuizForm extends React.Component {
     }
 
     showQuizForm(){
+      this.props.dispatch(emptyanswers());
         if(this.loginRequired()){
           this.props.dispatch(showQuizform());
           this.props.navigate("/user_quiz_form");

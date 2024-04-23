@@ -3,8 +3,6 @@ import LogOut from "./logout";
 import ToLogIn from "./tologin";
 import ToQuizForm from "./toquizform";
 import ToUserQuizList from "./touserquizlist";
-import ToUserMovieList from "./touserlist";
-import ToSearchList from "./tosearch";
 import ToRegister from "./toregister";
 import ToAllQuizList from "./toallquizlist";
 
@@ -21,8 +19,6 @@ class HeaderBar extends React.Component {
         <ToRegister navigate={this.props.navigate}/>&nbsp;&nbsp;&nbsp;
         <ToQuizForm navigate={this.props.navigate}/>&nbsp;&nbsp;&nbsp;
         <ToUserQuizList navigate={this.props.navigate}/>&nbsp;&nbsp;&nbsp;
-        <ToUserMovieList navigate={this.props.navigate}/> &nbsp;&nbsp;&nbsp;
-        <ToSearchList navigate={this.props.navigate}/>
         </div>);
   }
 }

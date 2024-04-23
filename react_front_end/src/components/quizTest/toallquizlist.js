@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-
+import { emptyanswers } from "../../redux/actions/actions";
 
 class ToAllQuizList extends React.Component {
     constructor(props) {
@@ -10,6 +10,7 @@ class ToAllQuizList extends React.Component {
 
     
     showLogIn(){
+        this.props.dispatch(emptyanswers());
         this.props.navigate("/quizlist");
      }
     

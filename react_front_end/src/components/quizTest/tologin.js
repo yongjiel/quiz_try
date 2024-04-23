@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { error } from "../../redux/actions/actions";
+import { error, emptyanswers } from "../../redux/actions/actions";
 
 
 class ToLogIn extends React.Component {
@@ -11,6 +11,7 @@ class ToLogIn extends React.Component {
 
     
     showLogIn(){
+        this.props.dispatch(emptyanswers());
         this.props.dispatch(error(""));
         this.props.navigate("/login");
      }

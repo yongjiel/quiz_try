@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { fetchAllQuizsInDjango, fetchQuizByID } from "../../redux/actions/actions";
+import { fetchAllQuizsInDjango, fetchQuizByPermalink } from "../../redux/actions/actions";
 import { cookies } from "../../redux/api/todo-api";
 import HeaderBar from "./headerbar";
 
@@ -12,17 +12,17 @@ class PublicQuizList extends React.Component {
   }
 
   redirectToQuiz(Id, permalink){
-    this.props.dispatch(fetchQuizByID(Id, this.props.navigate, "/quizs/"+ Id + '/'+permalink));
+    this.props.dispatch(fetchQuizByPermalink(permalink, this.props.navigate, "/quizs/"+permalink));
   }
 
   getQuizContent(){
     let text = "";
       text = (<div>
-              <table key="quiz_table">
-              <tbody key="quiz_tbody">
-                <tr key="quiz_table_header">
-                  <th key="quiz_table_header1"  style={{textAlign: 'left', width: '600px'}}>Title</th>
-                  <th key="quiz_table_header2"  style={{textAlign: 'left', width: '150px'}}>Number</th>
+              <table key="p_quiz_table">
+              <tbody key="p_quiz_tbody">
+                <tr key="p_quiz_table_header">
+                  <th key="p_quiz_table_header1"  style={{textAlign: 'left', width: '600px'}}>Title</th>
+                  <th key="p_quiz_table_header2"  style={{textAlign: 'left', width: '150px'}}>Number</th>
                 </tr>
               
                 {this.props.quizs.map((qz, i) => (
@@ -84,10 +84,10 @@ class PublicQuizList extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    error: state.movieListReducer.error,
-    user: state.movieListReducer.user,
-    quizs: state.movieListReducer.quizs,
-    quizs_with_questions: state.movieListReducer.quizs_with_questions
+    error: state.quizReducer.error,
+    user: state.quizReducer.user,
+    quizs: state.quizReducer.quizs,
+    quizs_with_questions: state.quizReducer.quizs_with_questions
   };
 };
 

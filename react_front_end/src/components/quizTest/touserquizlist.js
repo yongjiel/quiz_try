@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { fetchUserAndGetQuizs, error } from "../../redux/actions/actions";
+import { fetchUserAndGetQuizs, error, emptyanswers } from "../../redux/actions/actions";
 import { cookies } from "../../redux/api/todo-api";
 
 
@@ -26,6 +26,7 @@ class ToUserQuizList extends React.Component {
 
 
     showQuizList(){
+      this.props.dispatch(emptyanswers());
       if(this.loginRequired()){
         this.props.dispatch(
           fetchUserAndGetQuizs(null, this.props.quizs, this.props.navigate, "/user_quiz_list")
@@ -43,8 +44,8 @@ class ToUserQuizList extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    quizs: state.movieListReducer.quizs,
-    user: state.movieListReducer.user
+    quizs: state.quizReducer.quizs,
+    user: state.quizReducer.user
   };
 };
 

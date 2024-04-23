@@ -65,9 +65,6 @@ class Register extends React.Component {
 
     checkError(){
       if (!!this.props.error){
-        if (this.props.error.search(/Invalid user email format/i) > -1){
-          return (<div><p>&nbsp;</p></div>);
-        }
         const text = (<div><p className="text-base our-blue our-background" >{this.props.error}</p></div>);
         return text;
       }
@@ -87,9 +84,7 @@ class Register extends React.Component {
         </div>
       );
     }
-
     
-
     render() {
           return this.getRegisterPart();
       }
@@ -98,8 +93,7 @@ class Register extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    error: state.movieListReducer.error,
-    user_movies: state.movieListReducer.user_movies
+    error: state.quizReducer.error
   };
 };
 

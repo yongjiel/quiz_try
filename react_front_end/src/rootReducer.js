@@ -1,8 +1,8 @@
 import { combineReducers } from "redux";
-import movieListReducer from "./redux/reducers/reducers";
+import quizReducer from "./redux/reducers/reducers";
 
 const rootReducers =  combineReducers({
-    movieListReducer
+    quizReducer
 });
 
 export default rootReducers;

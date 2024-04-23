@@ -12,14 +12,14 @@ class LogIn extends React.Component {
       this.getLoginPart = this.getLoginPart.bind(this);
     }
 
-    getUserAndMovies(values){
+    getUserAndQuizs(values){
       this.props.dispatch(
         fetchUserAndGetQuizs(values, this.props.quizs, this.props.navigate, "/user_quiz_list")
         );
     }
 
     handleLogInSubmit(values){
-      this.getUserAndMovies(values);
+      this.getUserAndQuizs(values);
     }
   
     getLoginContent(){
@@ -83,9 +83,8 @@ class LogIn extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    error: state.movieListReducer.error,
-    user_movies: state.movieListReducer.user_movies,
-    quizs: state.movieListReducer.quizs
+    error: state.quizReducer.error,
+    quizs: state.quizReducer.quizs
   };
 };
 

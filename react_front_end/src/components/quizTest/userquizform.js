@@ -163,8 +163,8 @@ class QuizForm extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    error: state.movieListReducer.error,
-    user: state.movieListReducer.user
+    error: state.quizReducer.error,
+    user: state.quizReducer.user
   };
 };
 

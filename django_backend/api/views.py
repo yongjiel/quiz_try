@@ -135,13 +135,13 @@ class MoviesApiView(APIView):
 class QuizApiView(APIView):
     serializer_class = QuizSerializer
 
-    def get(self, request, id=None):
+    def get(self, request, permalink=None):
         user = _get_user_by_token(request)
         print("////////")
-        print(user, id)
-        if id:
+        print(user, permalink)
+        if permalink:
             try:
-                qz = Quiz.objects.get(Id=id)
+                qz = Quiz.objects.get(permalink=permalink)
                 setattr(qz, 'Questions_set', qz.questions.all())
                 serializer = QuizSerializer(qz, context={'request': request})
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -207,8 +207,8 @@ class QuizSummaryApiView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-def _delete_quiz_questions(id):
-    qzs = Quiz.objects.filter(Id=id).all()
+def _delete_quiz_questions(permalink):
+    qzs = Quiz.objects.filter(permalink=permalink).all()
     for qz in qzs:
         questions = qz.questions.all()
         for question in questions:

@@ -1,14 +1,11 @@
 import React from "react";
-import MovieList from "./components/moveList/movielist";
-import LogIn from "./components/moveList/login";
-import Register from "./components/moveList/register";
-import QuizForm from "./components/moveList/userquizform";
-import UserQuizList from "./components/moveList/userquizlist";
-import PublicQuizList from './components/moveList/publicquizlist';
-import Quiz from './components/moveList/quiz';
-
-//import LogOut from "./components/moveList/logout";
-import UserMovieList from "./components/moveList/usermovielist";
+import LogOut from "./components/quizTest/logout";
+import LogIn from "./components/quizTest/login";
+import Register from "./components/quizTest/register";
+import QuizForm from "./components/quizTest/userquizform";
+import UserQuizList from "./components/quizTest/userquizlist";
+import PublicQuizList from './components/quizTest/publicquizlist';
+import Quiz from './components/quizTest/quiz';
 import { BrowserRouter, Route, Routes, Navigate} from 'react-router-dom';
 import NoPage from "./components/nopage";
 import reportWebVitals from './reportWebVitals';
@@ -21,20 +18,13 @@ import Modal from "react-modal";
 import { useNavigate } from 'react-router-dom';
 // composeWithDevTools is tools that gonna be connecting our application for debugging the redux into the browser
 import { composeWithDevTools } from 'redux-devtools-extension';
-// This is the middleware that we gonna use redux-saga
-import createSagaMiddleware from 'redux-saga';
-import rootSaga from './redux/sagas';
-
 import './tailwind.output.css';
 
-//const store = createStore(rootReducers, applyMiddleware(thunk));
-const sagaMiddleware = createSagaMiddleware();
 
 const store = createStore(
   rootReducers,
   {},
-  composeWithDevTools(applyMiddleware(thunk),
-                      applyMiddleware(sagaMiddleware))
+  composeWithDevTools(applyMiddleware(thunk))
 )
 
 function AppRoutes() {
@@ -44,13 +34,12 @@ function AppRoutes() {
       <Routes>        
         <Route index path='/' element={ <Navigate to='/quizlist' /> } />
         <Route index path='/quizlist' element={ <PublicQuizList navigate={navigate}/>} />
-        <Route exact path="/quizs/:Id/:permalink"  element={<Quiz navigate={navigate}/>} />
+        <Route exact path="/quizs/:permalink"  element={<Quiz navigate={navigate}/>} />
         <Route index path='/login' element={ <LogIn navigate={navigate}/>} />
+        <Route index path='/logout' element={ <LogOut navigate={navigate}/>} />
         <Route index path='/register' element={ <Register navigate={navigate}/>} />
         <Route index path='/user_quiz_form' element={ <QuizForm  navigate={navigate}/>} />
         <Route index path='/user_quiz_list' element={ <UserQuizList  navigate={navigate}/>} />
-        <Route index path='/search' element={ <MovieList  navigate={navigate}/>} />
-        <Route index path='/userlist' element={ <UserMovieList navigate={navigate}/> } />
         <Route path="/*"  element={ <NoPage url={window.location.href} status={404} />} />
       </Routes>
       </div>
@@ -67,9 +56,6 @@ const App = () =>{
     );
   
 };
-// 
-// Run redux-saga
-sagaMiddleware.run(rootSaga)
 
 const container = document.getElementById('root');
 Modal.setAppElement(container);
