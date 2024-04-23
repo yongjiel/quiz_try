@@ -195,9 +195,12 @@ class Quiz extends React.Component {
       let text = '';
       text = (
         Object.keys(this.props.miss_correct_feed_back_answers).map((k, i)=>{
+          let array = this.props.miss_correct_feed_back_answers[k].filter(e=>
+            !! e
+          );
           return (
             <div><span>{k}</span>::
-            <span>{this.props.miss_correct_feed_back_answers[k].join(",")}</span>
+            <span>{array.join(",")}</span>
             </div>
           );
           
