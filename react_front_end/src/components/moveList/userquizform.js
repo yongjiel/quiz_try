@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Formik, Field, Form } from "formik";
 import { postQuiz } from "../../redux/actions/actions";
 import HeaderBar from "./headerbar";
+import { cookies } from "../../redux/api/todo-api";
 
 
 class QuizForm extends React.Component {
@@ -93,17 +94,21 @@ class QuizForm extends React.Component {
                             return (
                               <tr>
                                 <table>
+                                  <tr><td>&nbsp;</td><td></td><td></td></tr>
                                 <tr>
                                   <td><label htmlFor={"Question"+i}>{"Question"+(i+1)}:</label></td>
                                   <td><Field name={"Question"+i} label={"Question"+i} type="text" style={{width: '500px'}}/></td>
-                                </tr>
+                                  <td>Correct</td>
+                                </tr> 
+                               
                                 {Array.from({ length: 5 }).map(function(t, j) {
                                   return (
+          
                                     <tr>
                                     <td><label htmlFor={"Answer"+i+'_'+j}>{"Answer"+(j+1)}:</label></td>
                                     <td><Field name={"Answer"+i+'_'+j} label={"Answer"+i+'_'+j} type="text"  style={{width: '300px'}} /></td>
                                     <td><Field name={"Check"+i+'_'+j} className="mr-2 leading-tight" type="checkbox" /></td>
-                                    <td><label htmlFor={"Check"+i+'_'+j}>Correct</label></td>
+                                    
                                     </tr>
                                   );
                                 })}
@@ -139,7 +144,7 @@ class QuizForm extends React.Component {
   }
 
   get_user(){
-    return this.props.user;
+    return this.props.user || cookies.get('user');
   }
 
   checkError(){

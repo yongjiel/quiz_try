@@ -28,6 +28,7 @@ class Quiz extends React.Component {
     this.creatDBRecords = this.creatDBRecords.bind(this);
     this.first_time = 1;
     this.first_time_quizs = 1;
+    this.getQuizContent = this.getQuizContent.bind(this);
     this.toggleAnswer = this.toggleAnswer.bind(this);
   }
   
@@ -48,63 +49,62 @@ class Quiz extends React.Component {
     return text;
   }
 
-  toggleAnswer(i, j, answer_value){
+  toggleAnswer = (i, j, answer_value)=>{
       console.log(answer_value)
   }
 
-  getQuizContent(quiz){
+  getQuizContent(quiz, thiss){
     let text = "";
-    console.log("999999")
-    console.log(quiz)
     if(!!quiz){
       text = (
             <>
-                      <table key="quiz_table">
-                      <tbody key="quiz_tbody">
-                      <tr key="quiz">
-                          <tr key="quiz_t">
-                          <th><label htmlFor="quiz_title">Quiz title:</label></th>
-                          <td><div style={{width: '500px', textAlign: 'center',color: 'red'}}>
-                                   {quiz.Title}</div>
-                          </td></tr>
-                               
-                          <td></td>
+                  <table key="quiz_table">
+                  <tbody key="quiz_tbody">
+                  <tr key="quiz">
+                      <tr key="quiz_t">
+                      <th><label htmlFor="quiz_title">Quiz title:</label></th>
+                      <td><div style={{width: '500px', textAlign: 'center',color: 'red'}}>
+                                {quiz.Title}</div>
+                      </td>
+                      </tr>
+                            
+                      <td></td>
+                      </tr>
+                      {quiz.Questions_set.map(function(q, i) {
+                        let answers=[q.Answer1, q.Answer2, q.Answer3, q.Answer4, q.Answer5]
+                        return (
+                          <tr key={"row_q"+i}>
+                            <table key={"tbl_q"+i}>
+                            <tr key={'tbl_r'+i}>
+                              <td style={{width: '30px'}}>&bull;</td>
+                              <td key={'tbl_d'+i} style={{width: '100%', whiteSpace:'nowrap'}}>
+                                  <div><span  style={{color:'grey'}}>{q.Question}</span>&nbsp;
+                            (&nbsp;
+                                {answers.map(function(t, j) {
+                
+                                    if(t){
+                                        return ( 
+                                            <span>{ (j !=0 ) && "  /  "}<button
+                                                type="button"
+                                                onClick={ () => {thiss.toggleAnswer()} }
+                                                style={{border: "0px", backgroundColor: "white"}}>
+                                                    {t}
+                                                    
+                                                </button></span>
+                                    )}
+                                })}
+                            &nbsp;) </div>
+                            </td>
+                            </tr>
+                            </table>
                           </tr>
-                          {quiz.Questions_set.map(function(q, i) {
-                            let answers=[q.Answer1, q.Answer2, q.Answer3, q.Answer4, q.Answer5]
-                            return (
-                              <tr>
-                                <table>
-                                <tr>
-                                  <td style={{width: '30px'}}>&bull;</td>
-                                  <td  style={{width: '100%', whiteSpace:'nowrap'}}>
-                                      <div><span  style={{color:'grey'}}>{q.Question}</span>&nbsp;
-                                (&nbsp;
-                                    {answers.map(function(t, j) {
-                    
-                                        if(t){
-                                            return ( 
-                                                <span>{ (j !=0 ) && "  /  "}<button
-                                                    type="button"
-                                                    onClick={ (i, j, t) => {} }
-                                                    style={{border: "0px", backgroundColor: "white"}}>
-                                                        {t}
-                                                        
-                                                    </button></span>
-                                        )}
-                                    })}
-                                &nbsp;) </div>
-                                </td>
-                                </tr>
-                                </table>
-                              </tr>
-                            );
-                            }
-                          )
-                          }
+                        );
+                        }
+                      )
+                      }
               
-                      </tbody>
-                      </table>
+                    </tbody>
+                    </table>
                   <button className="text-base our-red our-background leading-normal" type="submit">Submit</button>
                 </>
               );
@@ -169,7 +169,7 @@ class Quiz extends React.Component {
         <h4  className="text-xl text-blue-700 leading-tight">
             {this.props.match.permalink}
         </h4>
-          {this.getQuizContent(q)}
+          {this.getQuizContent(q, this)}
       </div>
     );
   }

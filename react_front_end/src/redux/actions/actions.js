@@ -441,8 +441,6 @@ export function fetchUserQuizsInDjango(token, qzs, navigate, uri) {
       });
       
       dispatch(fetchQuizSuccess());
-      console.log("////")
-      console.log(typeof navigate)
       if (typeof navigate === 'function'){
         navigate(uri);
       }
