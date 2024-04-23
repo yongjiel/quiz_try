@@ -3,8 +3,8 @@ import Cookies from 'universal-cookie';
 export const cookies = new Cookies();
 
 
-export const deleteQuizInDjango = (id) => {
-  const url = `${process.env.REACT_APP_PROXY_HOST}/api/quizs/`+ id;
+export const deleteQuizInDjango = (permalink) => {
+  const url = `${process.env.REACT_APP_PROXY_HOST}/api/quizs/`+ permalink;
   try{
     // not for saga generator. return promise.
       const res = fetch(url

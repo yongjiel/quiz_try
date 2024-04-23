@@ -14,9 +14,9 @@ class HeaderBar extends React.Component {
   render() {
     return (<div className="ml-6 pt-1">
         <ToAllQuizList navigate={this.props.navigate}/> &nbsp;&nbsp;&nbsp;
+        <ToRegister navigate={this.props.navigate}/>&nbsp;&nbsp;&nbsp;
         <ToLogIn navigate={this.props.navigate}/> &nbsp;&nbsp;&nbsp;
         <LogOut navigate={this.props.navigate}/> &nbsp;&nbsp;&nbsp;
-        <ToRegister navigate={this.props.navigate}/>&nbsp;&nbsp;&nbsp;
         <ToQuizForm navigate={this.props.navigate}/>&nbsp;&nbsp;&nbsp;
         <ToUserQuizList navigate={this.props.navigate}/>&nbsp;&nbsp;&nbsp;
         </div>);

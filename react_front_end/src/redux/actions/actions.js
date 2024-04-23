@@ -130,9 +130,9 @@ export function addquiz(quiz){
   };
 }
 
-export function deletequiz(i, i_in_full, id, navigate){
+export function deletequiz(i, i_in_full, permalink, navigate){
   return dispatch => {
-    const resp = deleteQuizInDjango(id);
+    const resp = deleteQuizInDjango(permalink);
     resp.then(res=>{
       if ( [204].includes(res.status) ) {
         dispatch(deleteQuiz(i));

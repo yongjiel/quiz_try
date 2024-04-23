@@ -17,7 +17,7 @@ class UserQuizList extends React.Component {
       let index = this.props.quizs.indexOf(qz);
       let index_full = this.props.quizs_with_questions.findIndex(
                                               item => item.Id === qz.Id);
-      this.props.dispatch(deletequiz(index, index_full, qz.Id,  this.props.navigate));
+      this.props.dispatch(deletequiz(index, index_full, qz.permalink,  this.props.navigate));
     }
   }
 

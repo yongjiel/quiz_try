@@ -25,7 +25,7 @@ class LogIn extends React.Component {
     getLoginContent(){
         let text = "";
           text = (<Formik
-                      initialValues={{ username: "example", password: "sample_12" }}
+                      initialValues={{ }}
                       onSubmit={async (values) => {
                       await new Promise((resolve) => setTimeout(resolve, 500));
                       this.handleLogInSubmit(values);

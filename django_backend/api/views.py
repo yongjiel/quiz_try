@@ -68,26 +68,26 @@ class QuizApiView(APIView):
         #print(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
-    def delete(self, request, id, *args, **kwargs):
+    def delete(self, request, permalink, *args, **kwargs):
         user = _get_user_by_token(request)
         if not user:
             return Response("user must log in first", status=status.HTTP_400_BAD_REQUEST)
-        if not id:
-            return Response("id must be defined.", status=status.HTTP_400_BAD_REQUEST)
+        if not permalink:
+            return Response("permalink must be defined.", status=status.HTTP_400_BAD_REQUEST)
         
         if user.username == 'admin':
-            qz = Quiz.objects.filter(Id=id).first()
+            qz = Quiz.objects.filter(permalink=permalink).first()
         else:
-            qz = Quiz.objects.filter(Id=id, user=user).first()
+            qz = Quiz.objects.filter(permalink=permalink, user=user).first()
 
         if not qz:
             return Response(None, status=204)
 
         # delete questions first
-        _delete_quiz_questions(id)
+        _delete_quiz_questions(permalink)
         # finally delete quiz record
         qz.delete()
-        return Response({"message": f"Quiz {id} is deleted"}, status=204)
+        return Response({"message": f"Quiz {permalink} is deleted"}, status=204)
 
 
 class QuizSummaryApiView(APIView):
