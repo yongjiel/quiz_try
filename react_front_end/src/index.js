@@ -40,7 +40,7 @@ const store = createStore(
 function AppRoutes() {
   const navigate = useNavigate();
   return (
-      <div className=" our-width max-w-6xl mx-auto flex p-6 bg-gray-100 mt-10 rounded-lg shadow-xl">
+      <div className=" our-width max-w-8xl mx-auto flex p-6 bg-gray-100 mt-10 rounded-lg shadow-xl">
       <Routes>        
         <Route index path='/' element={ <Navigate to='/quizlist' /> } />
         <Route index path='/quizlist' element={ <PublicQuizList navigate={navigate}/>} />

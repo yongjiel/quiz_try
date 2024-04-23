@@ -49,8 +49,23 @@ class Quiz extends React.Component {
     return text;
   }
 
-  toggleAnswer = (i, j, answer_value)=>{
-      console.log(answer_value)
+  addAnswer(i, j, answer_value){
+
+  }
+
+  deleteAnswer(i,j, answer_value){
+
+  }
+
+  toggleAnswer = (event, i, j, answer_value)=>{
+    let el = event.target;
+    if (!el.style.color){
+      el.style.color="red";
+      this.addAnswer(i, j, answer_value);
+    }else{
+      el.style.color="";
+      this.deleteAnswer(i, j, answer_value);
+    }
   }
 
   getQuizContent(quiz, thiss){
@@ -86,7 +101,7 @@ class Quiz extends React.Component {
                                         return ( 
                                             <span>{ (j !=0 ) && "  /  "}<button
                                                 type="button"
-                                                onClick={ () => {thiss.toggleAnswer()} }
+                                                onClick={ (event) => {thiss.toggleAnswer(event, i, j, t)} }
                                                 style={{border: "0px", backgroundColor: "white"}}>
                                                     {t}
                                                     
