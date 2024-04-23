@@ -285,7 +285,8 @@ import {
           ...state,
           show_user_movies_flag: false,
           show_quiz_list: true,
-          show_quiz_form: false
+          show_quiz_form: false,
+          error: action.payload.error
         }
 
       case FETCH_QUIZ_SUCCESS:

@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Formik, Field, Form } from "formik";
-import { postQuiz, fetchQuizByID } from "../../redux/actions/actions";
+import { postQuiz, fetchQuizByID, fetchAllQuizsInDjango } from "../../redux/actions/actions";
 import HeaderBar from "./headerbar";
 import { useParams } from 'react-router-dom';
 import { cookies } from "../../redux/api/todo-api";
@@ -27,6 +27,8 @@ class Quiz extends React.Component {
     this.getQuizPart = this.getQuizPart.bind(this);
     this.creatDBRecords = this.creatDBRecords.bind(this);
     this.first_time = 1;
+    this.first_time_quizs = 1;
+    this.toggleAnswer = this.toggleAnswer.bind(this);
   }
   
   creatDBRecords(d){
@@ -36,7 +38,7 @@ class Quiz extends React.Component {
   }
 
   handleQuizSubmit(){
-    this.fetchDBRecordInDjango(this.props.match.permalink);
+    this.fetchDBRecordInDjango(Number(this.props.match.Id));
     this.props.navigate("/user_quiz_list")
   }
 
@@ -46,35 +48,17 @@ class Quiz extends React.Component {
     return text;
   }
 
-  filtUpData(quiz){
-      let data = {};
-      data['quiz_title'] = quiz['Title']
-      let questions = quiz.Questions_set;
-      for (let i=0; i<questions.length; i++){
-            let key = "Question"+i;
-            data[key] = decodeURI(questions[i].Question);
-            for (var j=0; j<5; j++){
-                let key2 = "Answer"+i+"_"+j;
-                data[key2] = questions[i]['Answer'+(j+1)]
-            }
-            
-      }
-      return data;
+  toggleAnswer(i, j, answer_value){
+      console.log(answer_value)
   }
 
   getQuizContent(quiz){
     let text = "";
+    console.log("999999")
+    console.log(quiz)
     if(!!quiz){
-      let data = this.filtUpData(quiz);
       text = (
-      <Formik
-                  initialValues={{...data }}
-                  onSubmit={async (values) => {
-                          await new Promise((resolve) => setTimeout(resolve, 500));
-                          this.handleQuizSubmit(values);
-                          }}
-              >
-                  <Form>
+            <>
                       <table key="quiz_table">
                       <tbody key="quiz_tbody">
                       <tr key="quiz">
@@ -100,10 +84,12 @@ class Quiz extends React.Component {
                     
                                         if(t){
                                             return ( 
-                                                <span>{ (j !=0 ) && "  /  "}<button name={"Answer"+i+'_'+j}
-                                                    onClick={() => {this.showQuizList()}} 
+                                                <span>{ (j !=0 ) && "  /  "}<button
+                                                    type="button"
+                                                    onClick={ (i, j, t) => {} }
                                                     style={{border: "0px", backgroundColor: "white"}}>
                                                         {t}
+                                                        
                                                     </button></span>
                                         )}
                                     })}
@@ -120,8 +106,7 @@ class Quiz extends React.Component {
                       </tbody>
                       </table>
                   <button className="text-base our-red our-background leading-normal" type="submit">Submit</button>
-                  </Form>
-              </Formik>
+                </>
               );
     }
     return text;
@@ -143,11 +128,19 @@ class Quiz extends React.Component {
             Id = q.Id;
         }
       });
+      if (!Id && this.first_time_quizs === 1){
+        this.props.dispatch(fetchAllQuizsInDjango( this.props.quizs, this.props.navigate, "/quizs/"+permalink ));
+        this.first_time_quizs = 2;
+      }
+      this.props.quizs.map(q => {
+        if (q.permalink === permalink){
+            Id = q.Id;
+        }
+      });
       return Id;
   }
 
-  getQuiz(permalink){
-      const Id = this.getIdByPermalink(permalink);
+  getQuiz(Id, permalink){
       let quiz;
       this.props.quizs_with_questions.map( q =>{
         if (!!q && q.Id === Id){
@@ -155,14 +148,14 @@ class Quiz extends React.Component {
         }
       });
       if (!quiz && this.first_time === 1){
-          this.props.dispatch(fetchQuizByID(Id))
+          this.props.dispatch(fetchQuizByID(Id, this.props.navigate, '/quizs/'+Id+'/'+permalink));
           this.first_time = 2;
       }
       return quiz;
   }
 
   getQuizPart(){
-    let q = this.getQuiz(this.props.match.permalink);
+    let q = this.getQuiz(Number(this.props.match.Id), this.props.match.permalink);
 
     return (
       <div className="ml-6 pt-1">

@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-
+import { error } from "../../redux/actions/actions";
 
 class ToRegister extends React.Component {
     constructor(props) {
@@ -10,6 +10,7 @@ class ToRegister extends React.Component {
 
     
     showLogIn(){
+        this.props.dispatch(error(''));
         this.props.navigate("/register");
      }
     

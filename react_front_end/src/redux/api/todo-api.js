@@ -186,6 +186,7 @@ export function fetchUserQuizListInDjango(token){
           .catch(
             error => {
               console.log(error);
+              return error;
             }
           );
 }

@@ -296,7 +296,10 @@ export function addmovie(post, navigate){
             if ( [401].includes(res.status) ) {
               alert("Token timeout! Back to login")
               dispatch(logOut());
-              navigate("/login");
+              if (typeof navigate === 'function'){
+                navigate("/login");
+              }
+              
             }else{
               dispatch(addMovieFailure());
             }
@@ -348,7 +351,7 @@ export function deletequiz(i, i_in_full, id, navigate){
           if ( [401].includes(res.status) ){
             alert("Token timeout! Back to login");
             dispatch(logOut());
-            if (!! navigate){
+            if (typeof navigate === 'function'){
               navigate('/login');
             }
           }else{
@@ -401,7 +404,7 @@ export function fetchMovieListInDjango(token, mvs, navigate, uri) {
         }
       });
       dispatch(fetchUserSuccess());
-      if (navigate !== null){
+      if (typeof navigate === 'function'){
         navigate(uri);
       }
       return movies;
@@ -429,27 +432,31 @@ export function fetchUserQuizsInDjango(token, qzs, navigate, uri) {
           dispatch(addquiz(q));
         }
       });
+      
       // delete extra from props.quizs
       qzs.map((q,i) =>{
         if (! Ids.includes(q.Id) ){
           dispatch(deleteQuiz(i));
         }  
       });
+      
       dispatch(fetchQuizSuccess());
-      if (navigate !== null){
+      console.log("////")
+      console.log(typeof navigate)
+      if (typeof navigate === 'function'){
         navigate(uri);
       }
       return quizs;
     }).catch(
-      error => {
-        console.log(error);
-        dispatch(fetchQuizFailure("Could not get user's quiz"));
+      err => {
+        console.log(err);
+        dispatch(fetchQuizFailure("Authentication failed"));
       }
     );
   };
 }
 
-export function fetchAllQuizsInDjango(qzs) {
+export function fetchAllQuizsInDjango(qzs, navigate, uri) {
   return dispatch => {
     fetchAllQuizListInDjango()
     .then(quizs=> {
@@ -459,11 +466,14 @@ export function fetchAllQuizsInDjango(qzs) {
         }
       });
       dispatch(fetchQuizSuccess());
+      if (typeof navigate === 'function'){
+        navigate(uri);
+      }
       return quizs;
     }).catch(
       error => {
         console.log(error);
-        dispatch(fetchQuizFailure("Could not get user's quiz"));
+        dispatch(fetchQuizFailure("Authentication failed"));
       }
     );
   };
@@ -502,7 +512,7 @@ export function fetchQuizByID(Id, navigate, uri){
     fetchQuizByIDInDjango(Id)
         .then(quiz => {
           dispatch(addquiztoquizwithquestions(quiz)); // for jwt token
-          if (navigate){
+          if (typeof navigate === 'function'){
             navigate(uri);
           }
           return quiz;
@@ -528,7 +538,7 @@ export function postQuiz(d, navigate, uri){
   return dispatch => {
     postQuizInDjango(d)
         .then(data => {
-          if (navigate !== null){
+          if (typeof navigate === 'function'){
             navigate(uri);
           }
         })
@@ -545,7 +555,7 @@ export function postNewUser(values,  navigate, uri){
   return dispatch => {
     createNewUser(values)
       .then(data => {
-        if (navigate !== null){
+        if (typeof navigate === 'function'){
           navigate(uri);
         }
       })

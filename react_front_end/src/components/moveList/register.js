@@ -64,12 +64,15 @@ class Register extends React.Component {
     }
 
     checkError(){
-        if (!!this.props.error){
-            const text = (<p className="text-base our-red our-background leading-normal" >{this.props.error}</p>);
-            return text;
+      if (!!this.props.error){
+        if (this.props.error.search(/Invalid user email format/i) > -1){
+          return (<div><p>&nbsp;</p></div>);
         }
-        return '';
+        const text = (<div><p className="text-base our-blue our-background" >{this.props.error}</p></div>);
+        return text;
       }
+      return (<div><p>&nbsp;</p></div>);
+    }
 
     getRegisterPart(){
       return (

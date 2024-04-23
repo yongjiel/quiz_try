@@ -12,7 +12,7 @@ class PublicQuizList extends React.Component {
   }
 
   redirectToQuiz(Id, permalink){
-    this.props.dispatch(fetchQuizByID(Id, this.props.navigate, "/quizs/"+permalink));
+    this.props.dispatch(fetchQuizByID(Id, this.props.navigate, "/quizs/"+ Id + '/'+permalink));
   }
 
   getQuizContent(){
@@ -52,7 +52,7 @@ class PublicQuizList extends React.Component {
       <div className="ml-6 pt-1">
         <HeaderBar navigate={this.props.navigate}/>
         <h1 className="text-2xl text-blue-700 leading-tight">
-          Hi, {this.props.user || "Visitor"}
+          Hi, {this.props.user || cookies.get("user") || "Visitor"}. List of All Quizs.
         </h1>
           { this.getQuizContent() }
       </div>

@@ -40,11 +40,11 @@ const store = createStore(
 function AppRoutes() {
   const navigate = useNavigate();
   return (
-      <div className=" our-width max-w-4xl mx-auto flex p-6 bg-gray-100 mt-10 rounded-lg shadow-xl">
+      <div className=" our-width max-w-6xl mx-auto flex p-6 bg-gray-100 mt-10 rounded-lg shadow-xl">
       <Routes>        
         <Route index path='/' element={ <Navigate to='/quizlist' /> } />
         <Route index path='/quizlist' element={ <PublicQuizList navigate={navigate}/>} />
-        <Route exact path="/quizs/:permalink"  element={<Quiz navigate={navigate}/>} />
+        <Route exact path="/quizs/:Id/:permalink"  element={<Quiz navigate={navigate}/>} />
         <Route index path='/login' element={ <LogIn navigate={navigate}/>} />
         <Route index path='/register' element={ <Register navigate={navigate}/>} />
         <Route index path='/user_quiz_form' element={ <QuizForm  navigate={navigate}/>} />

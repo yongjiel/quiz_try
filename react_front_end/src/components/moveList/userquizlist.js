@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
-import { error, deletequiz, fetchUserQuizsInDjango} from "../../redux/actions/actions";
+import { error, deletequiz, fetchUserQuizsInDjango, 
+    fetchQuizByID} from "../../redux/actions/actions";
 import { cookies } from "../../redux/api/todo-api";
 import HeaderBar from "./headerbar";
 
@@ -20,6 +21,10 @@ class UserQuizList extends React.Component {
     }
   }
 
+  redirectToQuiz(Id, permalink){
+    this.props.dispatch(fetchQuizByID(Id, this.props.navigate, "/quizs/"+ Id + '/'+permalink));
+  }
+
   getQuizContent(){
     let text = "";
       text = (<div>
@@ -34,11 +39,11 @@ class UserQuizList extends React.Component {
                 {this.props.quizs.map((qz, i) => (
                     <tr key={'row'+i}>
                     <td key={qz.Title} style={{width: '600px'}}>
-                      <a onClick={()=>{this.props.navigate("/quizs/"+qz.permalink)}} style={{color: "#2F020C"}}>
+                      <a onClick={()=>{this.redirectToQuiz(qz.Id, qz.permalink)}} style={{color: "#2F020C"}}>
                         <u>{qz.Title}</u></a>
                     </td>
                     <td style={{width: '150px'}}>
-                      <a onClick={()=>{this.props.navigate("/quizs/"+qz.permalink)}} style={{color: "#2F020C"}}>
+                      <a onClick={()=>{this.redirectToQuiz(qz.Id, qz.permalink)}} style={{color: "#2F020C"}}>
                         <u>{qz.permalink}</u></a></td>
                     <td><button 
                       className="text-base our-red our-light-grey-background leading-normal"
@@ -61,7 +66,7 @@ class UserQuizList extends React.Component {
       <div className="ml-6 pt-1">
         <HeaderBar navigate={this.props.navigate}/>
         <h1 className="text-2xl text-blue-700 leading-tight">
-          Hi, { this.get_user() }
+          Hi, { this.get_user() }. Quizs you own.
         </h1>
 
           { this.checkError() }
@@ -71,7 +76,7 @@ class UserQuizList extends React.Component {
   }
 
   get_user(){
-    return this.props.user;
+    return this.props.user || cookies.get('user');
   }
 
   checkError(){

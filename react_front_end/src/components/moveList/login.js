@@ -51,12 +51,12 @@ class LogIn extends React.Component {
     checkError(){
         if (!!this.props.error){
           if (this.props.error.search(/Invalid user email format/i) > -1){
-            return '';
+            return (<div><p>&nbsp;</p></div>);
           }
-          const text = (<p className="text-base our-blue our-background" >{this.props.error}</p>);
+          const text = (<div><p className="text-base our-blue our-background" >{this.props.error}</p></div>);
           return text;
         }
-        return '';
+        return (<div><p>&nbsp;</p></div>);
       }
 
     getLoginPart(){
