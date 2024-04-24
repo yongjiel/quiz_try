@@ -20,6 +20,11 @@ list and able to show/delete them.
 6. server is booted up at http://127.0.0.1:8000
 
 
+==== For cli tool cli.py will get questions from opentdb. ===
+1. python cli.py --help
+2. python cli.py -X POST [-t <title>]  [-u <useremail>:<pasword>]
+
+
 === Test Result ===
 1. Tested Mac OS 10.13.6 successfully
 

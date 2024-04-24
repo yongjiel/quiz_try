@@ -16,7 +16,7 @@ class QuizForm extends React.Component {
   
   creatDBRecords(d){
     this.props.dispatch(
-          postQuiz(d, this.props.navigate, '/user_quiz_list')
+          postQuiz(d, this.props.quizs, this.props.navigate, '/user_quiz_list')
       );
   }
 
@@ -53,7 +53,6 @@ class QuizForm extends React.Component {
     console.log(values)
     let d = this.convert_values_object_to_dic(values);
     this.creatDBRecords(d);
-    this.props.navigate("/user_quiz_list")
   }
 
   handleInputChange(event) {
@@ -164,7 +163,8 @@ class QuizForm extends React.Component {
 const mapStateToProps = state => {
   return {
     error: state.quizReducer.error,
-    user: state.quizReducer.user
+    user: state.quizReducer.user, 
+    quizs: state.quizReducer.quizs
   };
 };
 

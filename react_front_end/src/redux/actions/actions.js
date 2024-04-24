@@ -287,13 +287,11 @@ export function addquiztoquizwithquestions(data){
   };
 }
 
-export function postQuiz(d, navigate, uri){
+export function postQuiz(d, quizs, navigate, uri){
   return dispatch => {
     postQuizInDjango(d)
         .then(data => {
-          if (typeof navigate === 'function'){
-            navigate(uri);
-          }
+          dispatch(fetchUserAndGetQuizs(null, quizs, navigate, uri))
         })
       .catch(
         error => {
