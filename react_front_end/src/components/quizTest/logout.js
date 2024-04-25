@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { logout, error} from "../../redux/actions/actions";
+import { logout, error, clearuser } from "../../redux/actions/actions";
 import { cookies } from "../../redux/api/todo-api";
 
 class LogOut extends React.Component {
@@ -9,11 +9,11 @@ class LogOut extends React.Component {
       this.logout = this.logout.bind(this);
     }
 
-
     logout(){
       cookies.remove("token")
       this.props.dispatch(logout());
       this.props.dispatch(error("Logged out!"));
+      this.props.dispatch(clearuser());
       this.props.navigate("/login");
     }
 

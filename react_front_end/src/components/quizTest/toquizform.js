@@ -35,7 +35,7 @@ class ToQuizForm extends React.Component {
     
     render() {
           return <button
-          onClick={this.showQuizForm} style={{border: "0px", backgroundColor: "#DAFCF7"}}>New Quiz Form</button>;
+          onClick={this.showQuizForm} style={{border: "0px", backgroundColor: "#DAFCF7"}}>Quiz Form</button>;
     }
 
 }

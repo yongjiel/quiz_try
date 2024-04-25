@@ -36,7 +36,7 @@ class ToUserQuizList extends React.Component {
     
     render() {
           return <button
-          onClick={() => {this.showQuizList()}} style={{border: "0px", backgroundColor: "#DAFCF7"}}>User Quiz List</button>;
+          onClick={() => {this.showQuizList()}} style={{border: "0px", backgroundColor: "#DAFCF7"}}>User Quizs</button>;
     }
 
 }

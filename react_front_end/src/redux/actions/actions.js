@@ -29,6 +29,11 @@ export const ADD_ANSWER = "ADD_ANSWER";
 export const DELETE_ANSWER = "DELETE_ANSWER";
 export const EMPTY_ANSWERS = "EMPTY_ANSWERS";
 export const UPDATE_SCORE = "UPDATE_SCORE";
+export const CLEAR_USER = "CLEAR_USER";
+
+export const clearUser = ()=>({
+  type: CLEAR_USER
+})
 
 export const errorDirect = (msg) => ({
   type: ERROR,
@@ -120,7 +125,7 @@ export const deleteQuizFailure =()=>({
 export function logout(){
   return dispatch => {
     cookies.remove('token');
-    cookies.remove('user')
+    cookies.remove('user');
     dispatch(logOut())};
 }
 
@@ -322,6 +327,12 @@ export function postNewUser(values,  navigate, uri){
 export function error(message){
   return dispatch => {
     dispatch(errorDirect(message))
+  }
+}
+
+export function clearuser(){
+  return dispatch =>{
+    dispatch(clearUser());
   }
 }
 

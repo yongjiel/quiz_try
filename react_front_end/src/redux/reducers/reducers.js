@@ -4,6 +4,7 @@ import {
     FETCH_USER_SUCCESS,
     FETCH_USER_FAILURE,
     LOG_OUT,
+    CLEAR_USER,
     SHOW_QUIZ_FORM,
     SHOW_QUIZ_LIST,
     ADD_QUIZ,
@@ -70,6 +71,12 @@ import {
           return {
             ...initialState
           };
+      
+      case CLEAR_USER:
+        return {
+          ...state,
+          user: null
+        }
 
       case ADD_ANSWER:
           return {
